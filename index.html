@@ -1,96 +1,82 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff"><meta name="apple-mobile-web-app-capable" content="yes"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#121626"><meta name="apple-mobile-web-app-capable" content="yes"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
 <title>魔法の旅のしおり</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Shippori+Mincho+B1:wght@600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
 <style>
-/* デザイン: locore（Editorial Light / Locore Lime）を転用。
- * 白地 × インクの黒 × ライムの差し色。カードは 1px の罫線と弱い影、ボタンはピル。
- * 英字の小見出しは等幅＋字間広め。明朝は使わない。 */
+/* デザイン: 夜のホグワーツ。濃紺の夜を地に、羊皮紙のカードと金の細線。アイコン（絵文字・記号）は使わない。 */
 :root {
-  color-scheme: light;
-  /* locore tokens */
-  --lc-bg: #FFFFFF;
-  --lc-surface: #FFFFFF;
-  --lc-muted: #F4F4F5;
-  --lc-border: #E3E3DA;
-  --lc-border-strong: #CCCCC1;
-  --lc-fg: #18181b;
-  --lc-fg-2: #3f3f46;
-  --lc-fg-muted: #71717a;
-  --lc-fg-subtle: #837f78;
-  --lime: #A8E01C;
-  --lime-300: #B6E84E;
-  --lime-200: #CDF088;
-  --lime-100: #E3F7B8;
-  --lime-50: #F5FBE2;
-  --lime-700: #5E8B0E;
-  --lime-900: #3D5E07;
-  --danger: #dc2626;
-  --shadow-xs: 0 1px 2px rgba(24,24,27,.04);
-  --shadow-sm: 0 2px 6px rgba(24,24,27,.06);
-  --shadow-md: 0 6px 16px rgba(24,24,27,.08);
-  --shadow-lg: 0 16px 32px rgba(24,24,27,.12);
+  color-scheme: dark;
+  --hw-night: #121626;
+  --hw-night-2: #1a1f33;
+  --hw-on-night: #efe6d2;
+  --hw-on-night-dim: #b3a98f;
+  --hw-parch: #f2e8d2;
+  --hw-parch-2: #e8dcc0;
+  --hw-ink: #2b2118;
+  --hw-ink-dim: #6e5d48;
+  --hw-rule: rgba(201, 168, 92, .35);
+  --hw-rule-parch: #cdb88c;
+  --hw-gold: #c9a85c;
+  --hw-gold-deep: #8a6a24;
+  --hw-crimson: #8e2a2a;
+  --hw-shadow: 0 10px 28px rgba(0, 0, 0, .35);
+  --font-display: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --font-body: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+  --font-num: "Cinzel", "Times New Roman", serif;
+  --font-eyebrow: "Cinzel", "Times New Roman", serif;
   --ease-out: cubic-bezier(.16,1,.3,1);
-  --font-jp: "Noto Sans JP", system-ui, -apple-system, "Hiragino Sans", "Yu Gothic Medium", sans-serif;
-  --font-latin: "Inter", system-ui, -apple-system, sans-serif;
-  --font-mono: "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  --radius: 10px;
+  --nav-h: 60px;
 
-  /* 旧トークン（各画面が参照）を locore の色に読み替える */
-  --night: var(--lc-bg);
-  --night-2: var(--lc-muted);
-  --ink: var(--lc-fg);
-  --ink-dim: var(--lc-fg-muted);
-  --gold: var(--lime-700);
-  --gold-deep: var(--lime-900);
-  --parch: var(--lc-surface);
-  --parch-ink: var(--lc-fg);
-  --parch-dim: var(--lc-fg-muted);
-  --line: var(--lc-border);
-  /* 4 寮（彩度を落として白地になじませる） */
-  --gry: #9b2c2c; --gry-2: #ffffff;
-  --sly: #2f6b4f; --sly-2: #ffffff;
-  --rav: #2f4a8a; --rav-2: #ffffff;
-  --huf: #d9a91c; --huf-2: #18181b;
-  --font-display: var(--font-jp);
-  --font-body: var(--font-jp);
-  --radius: 16px;
-  --nav-h: 64px;
+  /* 移行中の画面のための読み替え（各画面が --hw-* に移ったら不要） */
+  --lc-bg: var(--hw-night); --lc-surface: var(--hw-parch); --lc-muted: var(--hw-parch-2);
+  --lc-border: var(--hw-rule-parch); --lc-border-strong: var(--hw-gold-deep);
+  --lc-fg: var(--hw-ink); --lc-fg-2: var(--hw-ink); --lc-fg-muted: var(--hw-ink-dim); --lc-fg-subtle: var(--hw-ink-dim);
+  --lime: var(--hw-gold); --lime-300: var(--hw-gold); --lime-200: var(--hw-gold); --lime-100: var(--hw-parch-2); --lime-50: var(--hw-parch-2);
+  --lime-700: var(--hw-gold-deep); --lime-900: var(--hw-ink); --danger: var(--hw-crimson);
+  --shadow-xs: none; --shadow-sm: 0 2px 8px rgba(0,0,0,.18); --shadow-md: var(--hw-shadow); --shadow-lg: var(--hw-shadow);
+  --font-jp: var(--font-body); --font-latin: var(--font-num); --font-mono: var(--font-eyebrow);
+  --night: var(--hw-night); --night-2: var(--hw-night-2); --ink: var(--hw-on-night); --ink-dim: var(--hw-on-night-dim);
+  --gold: var(--hw-gold); --gold-deep: var(--hw-gold-deep); --parch: var(--hw-parch); --parch-ink: var(--hw-ink); --parch-dim: var(--hw-ink-dim); --line: var(--hw-rule);
+  /* 4 寮 */
+  --gry: #7f1d1d; --gry-2: #e9c46a;
+  --sly: #1d4d35; --sly-2: #d8dde3;
+  --rav: #1f3566; --rav-2: #d2a86a;
+  --huf: #c9a227; --huf-2: #1f1a12;
 }
 html, body { height: 100%; }
 body {
-  background: var(--lc-bg);
-  color: var(--lc-fg);
-  font-family: var(--font-jp);
-  font-size: 16px;
-  line-height: 1.75;
-  font-feature-settings: "palt" 1;
-  letter-spacing: .005em;
+  margin: 0;
+  background: var(--hw-night);
+  background-image: radial-gradient(120% 60% at 50% -10%, #232a46 0%, transparent 60%);
+  background-attachment: fixed;
+  color: var(--hw-on-night);
+  font-family: var(--font-body);
+  font-size: 16px; line-height: 1.75;
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 button { font: inherit; color: inherit; touch-action: manipulation; }
-h1, h2, h3, h4 { letter-spacing: -.01em; }
-:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--hw-gold); outline-offset: 2px; }
 
 .app-header {
   position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   padding: 10px 16px;
-  background: rgba(255,255,255,.92);
-  backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px);
-  border-bottom: 1px solid var(--lc-border);
+  background: rgba(18, 22, 38, .94);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--hw-rule);
 }
 .app-title {
-  min-width: 0; margin: 0; display: flex; align-items: center; gap: 8px;
-  font-family: var(--font-jp); font-weight: 700; font-size: 16px; letter-spacing: -.01em; color: var(--lc-fg);
+  min-width: 0; margin: 0;
+  font-family: var(--font-display); font-weight: 800; font-size: 17px; letter-spacing: .1em; color: var(--hw-gold);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.app-title::before { content: ""; flex-shrink: 0; width: 10px; height: 10px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 3px var(--lime-100); }
-.app-sub { flex-shrink: 0; white-space: nowrap; font-size: 12px; color: var(--lc-fg-muted); }
+.app-sub { flex-shrink: 0; white-space: nowrap; font-size: 12px; color: var(--hw-on-night-dim); }
 
 main.view {
   max-width: 560px; margin: 0 auto;
@@ -102,46 +88,49 @@ main.view {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
   display: grid; grid-template-columns: repeat(4, 1fr);
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: rgba(255,255,255,.96);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  border-top: 1px solid var(--lc-border);
+  background: rgba(18, 22, 38, .97);
+  border-top: 1px solid var(--hw-rule);
 }
 .tabbar button {
   position: relative; min-width: 0; min-height: var(--nav-h);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  display: flex; align-items: center; justify-content: center;
   background: none; border: 0; cursor: pointer;
-  color: var(--lc-fg-muted); font-size: 11px; font-weight: 500; white-space: nowrap;
+  color: var(--hw-on-night-dim); font-family: var(--font-display); font-weight: 700; font-size: 14px; letter-spacing: .08em; white-space: nowrap;
 }
-.tabbar button .ico { font-size: 18px; line-height: 1; }
-.tabbar button[aria-current="page"] { color: var(--lc-fg); font-weight: 700; }
-.tabbar button[aria-current="page"]::before { content: ""; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--lime); }
+.tabbar button[aria-current="page"] { color: var(--hw-gold); }
+.tabbar button[aria-current="page"]::before { content: ""; position: absolute; top: -1px; left: 28%; right: 28%; height: 2px; background: var(--hw-gold); }
 
-/* 共通部品（各モジュールが使ってよい） */
+/* 共通部品 */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   min-height: 44px; padding: 10px 22px;
-  border-radius: 9999px; border: 1px solid var(--lime);
-  background: var(--lime); color: #0e0e0f;
-  font-weight: 700; font-size: 15px; white-space: nowrap; cursor: pointer;
-  flex-shrink: 0; box-shadow: var(--shadow-sm);
-  transition: transform .12s var(--ease-out), background .2s;
+  border-radius: 6px; border: 1px solid var(--hw-gold);
+  background: var(--hw-gold); color: var(--hw-night);
+  font-family: var(--font-display); font-weight: 700; font-size: 15px; letter-spacing: .06em;
+  white-space: nowrap; cursor: pointer; flex-shrink: 0;
+  transition: transform .12s var(--ease-out), filter .2s;
 }
-.btn:active { transform: scale(.97); }
-.btn.ghost { background: #fff; color: var(--lc-fg-2); border-color: var(--lc-border-strong); box-shadow: none; }
-.btn:disabled { opacity: .4; cursor: default; }
+.btn:active { transform: scale(.98); }
+.btn.ghost { background: transparent; color: var(--hw-gold); }
+.parchment .btn.ghost, .hw-on-parch .btn.ghost { color: var(--hw-gold-deep); border-color: var(--hw-gold-deep); }
+.btn:disabled { opacity: .45; cursor: default; }
 .parchment {
-  background: var(--lc-surface); color: var(--lc-fg);
-  border: 1px solid var(--lc-border);
+  background: var(--hw-parch); color: var(--hw-ink);
+  border: 1px solid var(--hw-rule-parch);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--hw-shadow);
   padding: 20px 18px;
 }
-.h-display { font-family: var(--font-jp); font-weight: 700; text-wrap: balance; letter-spacing: -.015em; }
-.muted { color: var(--lc-fg-muted); }
-.eyebrow { font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--lime-700); }
+.h-display { font-family: var(--font-display); font-weight: 800; text-wrap: balance; letter-spacing: .04em; }
+.muted { color: var(--hw-on-night-dim); }
+.parchment .muted { color: var(--hw-ink-dim); }
+.eyebrow { font-family: var(--font-eyebrow); font-size: 12px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--hw-gold); }
+.parchment .eyebrow { color: var(--hw-gold-deep); }
+.hw-divider { display: flex; align-items: center; gap: 12px; color: var(--hw-gold); }
+.hw-divider::before, .hw-divider::after { content: ""; flex: 1; height: 1px; background: var(--hw-rule); }
 .house-chip {
   display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; white-space: nowrap;
-  padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 700;
+  padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 700;
 }
 .house-chip[data-house="gryffindor"] { background: var(--gry); color: var(--gry-2); }
 .house-chip[data-house="slytherin"]  { background: var(--sly); color: var(--sly-2); }
@@ -152,9 +141,9 @@ main.view {
   position: fixed; left: 50%; top: calc(64px + env(safe-area-inset-top, 0px));
   transform: translateX(-50%); z-index: 40;
   max-width: calc(100% - 32px);
-  padding: 10px 18px; border-radius: 9999px;
-  background: var(--lc-fg); color: #fff; font-weight: 600; font-size: 14px;
-  box-shadow: var(--shadow-lg);
+  padding: 10px 18px; border-radius: 6px;
+  background: var(--hw-parch); color: var(--hw-ink); border: 1px solid var(--hw-gold);
+  font-weight: 700; font-size: 14px; box-shadow: var(--hw-shadow);
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
@@ -170,10 +159,10 @@ main.view {
 <main class="view" id="view-paper" data-tab="paper" hidden></main>
 
 <nav class="tabbar" aria-label="メニュー">
-  <button type="button" data-go="hunt"><span class="ico">◆</span>カード</button>
-  <button type="button" data-go="spells"><span class="ico">✦</span>呪文</button>
-  <button type="button" data-go="games"><span class="ico">♣</span>飲みゲーム</button>
-  <button type="button" data-go="paper"><span class="ico">✎</span>新聞</button>
+  <button type="button" data-go="hunt">カード</button>
+  <button type="button" data-go="spells">呪文</button>
+  <button type="button" data-go="games">飲みゲーム</button>
+  <button type="button" data-go="paper">新聞</button>
 </nav>
 <div class="toast" id="toast" hidden></div>
 

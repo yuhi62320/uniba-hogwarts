@@ -582,11 +582,11 @@
     let headline = fill(pick(set.head), m.vars);
     for (let i = 0; i < 5 && prev && headline === prev.headline; i++) headline = fill(pick(set.head), m.vars);
     const photoCaps = tone === "final" && n > 0
-      ? ["▲ 動く写真：カード「{card}」が解放された瞬間（{spot}）", "▲ 写真の中の{by}は、いまもカードを掲げ続けている"]
+      ? ["動く写真：カード「{card}」が解放された瞬間（{spot}）", "写真の中の{by}は、いまもカードを掲げ続けている"]
       : [
-        "▲ 動く写真：「{kw}」の直後をとらえた一枚（本紙カメラマン撮影）",
-        "▲ 写真の中の{name}は、いまも手を振り続けている",
-        "▲ 現場写真。撮影後、カメラから紫の煙が出た",
+        "動く写真：「{kw}」の直後をとらえた一枚（本紙カメラマン撮影）",
+        "写真の中の{name}は、いまも手を振り続けている",
+        "現場写真。撮影後、カメラから紫の煙が出た",
       ];
     return {
       tone,
@@ -994,7 +994,7 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
           if (current) renderPaper(current);
         },
       },
-        h("span", { class: "pp-pick-media" + (inner ? "" : " pp-pick-none") }, inner || "—", h("span", { class: "pp-pick-check", "aria-hidden": "true" }, "✓")),
+        h("span", { class: "pp-pick-media" + (inner ? "" : " pp-pick-none") }, inner || "なし", h("span", { class: "pp-pick-check", "aria-hidden": "true" }, "選択中")),
         h("span", { class: "pp-pick-name" }, label));
       els.pick.append(tile("", "写真なし", null));
       list.forEach((c) => els.pick.append(tile(c.key, c.name, mediaEl(c.key, null, c.name))));
@@ -1029,7 +1029,7 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
       h("ul", { class: "pp-hx" }, cs.recent.map((c) =>
         h("li", { class: "is-done" },
           h("span", { class: "pp-hx-name" }, c.name + (c.by ? "（" + c.by + "）" : "")),
-          h("span", { class: "pp-hx-mark", "aria-label": "解放済み" }, "✓")))),
+          h("span", { class: "pp-hx-mark", "aria-label": "解放済み" }, "済")))),
     ] : [h("p", { class: "pp-small" }, "まだ1枚も解放されていない")];
     const mvp = mvpData && mvpData.players && mvpData.players.length
       ? h("div", { class: "pp-mvp" },
@@ -1039,7 +1039,7 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
 
     const key = mainKey();
     const card = key && key !== OWN ? (live || cardInfo()).cards.find((c) => c.key === key) : null;
-    const caption = card ? "▲ 動く写真：蛙チョコカード「" + card.name + "」の一枚（" + card.setLabel + "）" : a.caption;
+    const caption = card ? "動く写真：蛙チョコカード「" + card.name + "」の一枚（" + card.setLabel + "）" : a.caption;
 
     const gal = choices().filter((c) => c.key !== OWN && c.key !== key).slice(0, 6);
     const gallery = gal.length ? h("section", { class: "pp-gallery" },
@@ -1234,7 +1234,7 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
         const url = await blobToDataURL(blob);
         shot.textContent = "";
         shot.append(h("figure", { class: "pp-shot" },
-          h("p", { class: "pp-shot-guide" }, "長押しで写真に保存 → LINE で4人に送ってね"),
+          h("p", { class: "pp-shot-guide" }, "長押しで写真に保存して、LINE で4人に送ってね"),
           h("img", { class: "pp-shot-img", src: url, alt: "日刊予言者新聞の紙面（画像）" })));
         shot.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
       } catch (e) {}
