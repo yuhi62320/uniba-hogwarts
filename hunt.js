@@ -766,6 +766,7 @@ textarea.hn-input { min-height: 72px; resize: vertical; line-height: 1.5; }
 .hn-bulk-in p { margin: 0 0 6px; font-size: 14px; line-height: 1.7; color: var(--hw-ink-dim); }
 .hn-bulk-in .hn-bulk-now { color: var(--hw-ink); font-weight: 700; min-width: 0; }
 .hn-bulk-in .btn { white-space: normal; }
+.hn-ca-shine-soft { opacity: .55; }
 @media (prefers-reduced-motion: reduce) { .hn-ca-shine { display: none; } }
 @media (prefers-reduced-motion: reduce) {
   .hn-env-flap, .hn-seal { display: none; }
@@ -900,7 +901,7 @@ textarea.hn-input { min-height: 72px; resize: vertical; line-height: 1.5; }
   }
   /* 詳細シート・演出の大きいカード（canvas）。伝説には光の筋 */
   function artBig(c) {
-    const shine = c.rar === "legend" ? h("i", { class: "hn-ca-shine", "aria-hidden": "true" }) : null;
+    const shine = c.rar !== "normal" ? h("i", { class: "hn-ca-shine" + (c.rar === "rare" ? " hn-ca-shine-soft" : ""), "aria-hidden": "true" }) : null;
     const el = h("div", { class: "hn-ca hn-ca-big", "data-rar": c.rar });
     const key = artKey(c);
     const put = (cv) => {

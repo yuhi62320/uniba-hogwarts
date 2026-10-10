@@ -316,13 +316,15 @@
     ctx.restore();
   }
 
-  function holo(ctx, seed) {
+  /* ホログラム箔。k は強さ（伝説 1、レア・ノーマルは弱めに一部だけ） */
+  function holo(ctx, seed, k) {
+    k = k == null ? 1 : k;
     ctx.save();
     // 斜めの虹（低い不透明度）
     ctx.globalCompositeOperation = "overlay";
     const g = ctx.createLinearGradient(0, 0, W, H);
     const hues = [0, 40, 60, 130, 190, 260, 310, 360];
-    for (let rep = 0; rep < 2; rep++) hues.forEach((hh, i) => g.addColorStop(Math.min(1, (rep + i / hues.length) / 2), "hsla(" + hh + ", 90%, 62%, .34)"));
+    for (let rep = 0; rep < 2; rep++) hues.forEach((hh, i) => g.addColorStop(Math.min(1, (rep + i / hues.length) / 2), "hsla(" + hh + ", 90%, 62%, " + (.34 * k).toFixed(3) + ")"));
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
     // 光の筋
@@ -333,14 +335,14 @@
       ctx.rotate(-0.55);
       const sg = ctx.createLinearGradient(-w, 0, w, 0);
       sg.addColorStop(0, "rgba(255,255,255,0)");
-      sg.addColorStop(.5, "rgba(255,250,225," + a + ")");
+      sg.addColorStop(.5, "rgba(255,250,225," + (a * k).toFixed(3) + ")");
       sg.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = sg;
       ctx.fillRect(-w, -H, w * 2, H * 2);
       ctx.restore();
     });
     ctx.restore();
-    stars(ctx, seed, 28, true);
+    stars(ctx, seed, Math.round(28 * k), k >= .9);
   }
   function stars(ctx, seed, n, bright) {
     const r = rnd(seed + "stars");
@@ -585,8 +587,8 @@
     spaced(ctx, RAR[rar].en + " · " + set.en + " · MMXXVI", W / 2, 995, 4);
 
     // レア度の仕上げ
-    if (rar === "legend") holo(ctx, seed);
-    else if (rar === "rare") stars(ctx, seed, 9, false);
+    // 伝説は全面、レア・ノーマルも同じ箔を弱めにかける
+    holo(ctx, seed, rar === "legend" ? 1 : rar === "rare" ? .6 : .32);
 
     ctx.restore();
     // 外周の細い縁
