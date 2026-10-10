@@ -687,6 +687,13 @@
 
   /* ---------- CSS ---------- */
   const CSS = `
+.pp-ai { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; padding: 14px 16px; border-radius: 12px;
+  border: 1px solid var(--lime-100); background: var(--lime-50); cursor: pointer; }
+.pp-ai-input { flex-shrink: 0; width: 22px; height: 22px; margin: 2px 0 0; accent-color: var(--lime-700); }
+.pp-ai-text { min-width: 0; display: grid; gap: 2px; }
+.pp-ai-text b { font-size: 15px; color: var(--lc-fg); }
+.pp-ai-text span { font-size: 12px; color: var(--lc-fg-muted); line-height: 1.6; }
+.pp-ai:has(input:disabled) { opacity: .6; cursor: default; }
 /* 紙面の外側は locore の白い UI（index.html のトークン）。
  * 紙面（.pp-paper）だけは生成りの紙とインクの黒。飾りは罫線と文字の階層で出す。
  * 紙面の中は html2canvas で画像にするので、border・background-color・font だけで組む */
@@ -963,7 +970,7 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
 
   function readForm() {
     const t = els.form.querySelector('input[name="pp-tone"]:checked');
-    return { heroId: els.hero.value || "", keywords: els.kw.value, tone: t ? t.value : "incident" };
+    return { heroId: els.hero.value || "", keywords: els.kw.value, tone: t ? t.value : "incident", ai: els.ai ? els.ai.checked : true };
   }
 
   function signature() {
@@ -1082,7 +1089,7 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
       paper,
       h("div", { class: "pp-actions" },
         shotBtn,
-        h("button", { type: "button", class: "btn ghost", onclick: () => print(true) }, "別の記事にする（刷り直し）")),
+        h("button", { type: "button", class: "btn ghost pp-reprint", onclick: () => print(true) }, "別の記事にする（刷り直し）")),
       shot
     );
   }
@@ -1246,14 +1253,97 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
     }
   }
 
-  function print(again) {
+  /* ---------- AI 記者（Supabase Edge Function 経由で Claude が書く） ---------- */
+  function aiAvailable() { return !!(HP.ROOM && HP.sync && HP.sync.callFunction); }
+
+  /* メインの写真を 768px の JPEG にして送る（動画は今のコマ） */
+  function photoForAi() {
+    const k = mainKey();
+    const m = k && HP.media.get(k);
+    if (!m) return Promise.resolve(null);
+    return new Promise((resolve) => {
+      const done = (src, w, hgt) => {
+        try {
+          const s = Math.min(1, 768 / Math.max(w, hgt));
+          const c = document.createElement("canvas");
+          c.width = Math.max(1, Math.round(w * s)); c.height = Math.max(1, Math.round(hgt * s));
+          c.getContext("2d").drawImage(src, 0, 0, c.width, c.height);
+          resolve({ media_type: "image/jpeg", data: c.toDataURL("image/jpeg", 0.8).split(",")[1] });
+        } catch (e) { resolve(null); }
+      };
+      if (m.kind === "video") {
+        const v = document.createElement("video");
+        v.crossOrigin = "anonymous"; v.muted = true; v.playsInline = true; v.preload = "auto"; v.src = m.url;
+        v.addEventListener("loadeddata", () => done(v, v.videoWidth, v.videoHeight), { once: true });
+        v.addEventListener("error", () => resolve(null), { once: true });
+        setTimeout(() => resolve(null), 8000);
+        return;
+      }
+      const img = new Image();
+      if (/^https?:/.test(m.url)) img.crossOrigin = "anonymous";
+      img.onload = () => done(img, img.naturalWidth, img.naturalHeight);
+      img.onerror = () => resolve(null);
+      img.src = m.url;
+    });
+  }
+
+  const AI_ERR = {
+    rate_limited: "AI記者が混み合っています。少し待ってもう一度",
+    refused: "AI記者がこの内容では書けませんでした",
+    bad_api_key: "AI記者の設定（APIキー）を確認してね",
+  };
+
+  async function aiWrite(input, base) {
+    const p = base.heroId ? HP.player(base.heroId) : null;
+    const hs = (id) => (HP.HOUSES[id] ? HP.HOUSES[id].jp : "");
+    const body = {
+      tone: base.tone,
+      toneLabel: TONES[base.tone].label,
+      hero: { name: base.heroName, house: hs(p ? p.house : base.heroHouse) },
+      players: HP.activePlayers().map((x) => ({ name: x.name.trim(), house: hs(x.house) })),
+      keywords: parseKeywords(input.keywords),
+      cards: base.cards,
+      mvp: base.mvp ? base.mvp.players.map((x) => x.name).join("と") : "",
+      image: await photoForAi(),
+    };
+    const res = await HP.sync.callFunction("prophet", body, 90000);
+    const a = res && res.article;
+    if (!a || !a.headline || !Array.isArray(a.body) || !a.body.length) throw Object.assign(new Error("bad_output"), { code: "bad_output" });
+    const str = (v, f) => (typeof v === "string" && v.trim() ? v.trim() : f);
+    return Object.assign({}, base, {
+      headline: str(a.headline, base.headline),
+      sub: str(a.sub, base.sub),
+      body: a.body.map((x) => String(x).trim()).filter(Boolean).slice(0, 4),
+      caption: str(a.caption, base.caption),
+      weather: str(a.weather, base.weather),
+      ad: a.ad && a.ad.title ? { title: str(a.ad.title, base.ad.title), body: str(a.ad.body, base.ad.body), foot: str(a.ad.foot, base.ad.foot) } : base.ad,
+      notice: str(a.notice, base.notice),
+      byline: base.byline + "（AI記者）",
+      ai: true,
+    });
+  }
+
+  let printing = false;
+  async function print(again) {
+    if (printing) return;
     const input = readForm();
-    const a = generate(input, current);
+    let a = generate(input, current);
+    const useAi = els.ai && els.ai.checked && aiAvailable();
+    let aiMsg = "";
+    if (useAi) {
+      printing = true;
+      const btns = [...document.querySelectorAll(".pp-print, .pp-reprint")];
+      const labels = btns.map((b) => b.textContent);
+      btns.forEach((b) => { b.disabled = true; b.textContent = "AI記者が執筆中…"; });
+      try { a = await aiWrite(input, a); }
+      catch (e) { aiMsg = (e && AI_ERR[e.code]) || "AI記者がつかまらなかったので、いつもの記者が書きました"; }
+      finally { printing = false; btns.forEach((b, i) => { b.disabled = false; b.textContent = labels[i]; }); }
+    }
     const draft = Object.assign({}, input, { huntN: cardInfo().n });
     HP.state.paper = Object.assign({}, HP.state.paper, { article: a, draft });
     renderPaper(a);
     HP.save();
-    HP.toast(again ? "刷り直しました" : "号外を刷りました！");
+    HP.toast(a.ai ? "AI記者が号外を書き上げました！" : aiMsg || (again ? "刷り直しました" : "号外を刷りました！"));
     els.out.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
   }
 
@@ -1268,6 +1358,16 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
       const r = els.form.querySelector('input[name="pp-tone"][value="final"]');
       if (r) r.checked = true;
     }
+  }
+
+  function aiToggle() {
+    const draft = (HP.state.paper && HP.state.paper.draft) || {};
+    els.ai = h("input", { type: "checkbox", id: "pp-ai", class: "pp-ai-input", checked: draft.ai !== false });
+    if (!aiAvailable()) { els.ai.checked = false; els.ai.disabled = true; }
+    return h("label", { class: "pp-ai", for: "pp-ai" }, els.ai,
+      h("span", { class: "pp-ai-text" },
+        h("b", null, "AI記者に書いてもらう"),
+        h("span", null, aiAvailable() ? "写真と今日の出来事を読んで、Claude が記事を書きます（10〜30秒）" : "4人で同期しているときだけ使えます")));
   }
 
   function mount(root) {
@@ -1348,6 +1448,7 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
       h("fieldset", { class: "pp-field" },
         h("legend", { class: "pp-label" }, "記事のトーン"),
         toneList),
+      aiToggle(),
       h("button", { type: "submit", class: "btn pp-print" }, "号外を刷る")
     );
 

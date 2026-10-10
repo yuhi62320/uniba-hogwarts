@@ -268,8 +268,25 @@
     document.body.append(back);
   }
 
+  /* Edge Function を呼ぶ（公開用の鍵だけを付ける。秘密の鍵はサーバー側にある） */
+  async function callFunction(name, body, timeoutMs) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs || 60000);
+    try {
+      const res = await fetch(SUPA_URL + "/functions/v1/" + name, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", apikey: SUPA_KEY },
+        body: JSON.stringify(Object.assign({ room: ROOM }, body)),
+        signal: ctrl.signal,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw Object.assign(new Error(data.error || "http_" + res.status), { code: data.error || "http_" + res.status });
+      return data;
+    } finally { clearTimeout(timer); }
+  }
+
   HP.sync = {
-    push, start, upload,
+    push, start, upload, callFunction,
     canUpload() { return !!client; },
     status() { return status; },
     _flatten: flatten, _setPath: setPath,
