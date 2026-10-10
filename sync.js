@@ -172,23 +172,26 @@
   /* ---------- 画面: 同期の表示と合言葉 ---------- */
   const CSS = `
 .sy-pill { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 4px 12px;
-  border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink-dim);
-  font-size: 12px; white-space: nowrap; cursor: pointer; }
-.sy-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-dim); flex-shrink: 0; }
-.sy-pill[data-s="online"] .sy-dot { background: #4cc38a; box-shadow: 0 0 6px #4cc38a; }
-.sy-pill[data-s="offline"] .sy-dot { background: #e0794f; }
-.sy-pill[data-s="connecting"] .sy-dot { background: var(--gold); }
-.sy-back { position: fixed; inset: 0; z-index: 30; background: rgba(8, 9, 16, .72); display: grid; place-items: center; padding: 16px; }
-.sy-card { width: 100%; max-width: 420px; display: grid; gap: 14px; }
-.sy-card h2 { margin: 0; font-size: 22px; }
-.sy-card p { margin: 0; font-size: 14px; }
+  border-radius: 9999px; border: 1px solid var(--lc-border); background: #fff; color: var(--lc-fg-2);
+  font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; box-shadow: var(--shadow-xs); }
+.sy-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--lc-border-strong); flex-shrink: 0; }
+.sy-pill[data-s="online"] .sy-dot { background: var(--lime); box-shadow: 0 0 0 3px var(--lime-100); }
+.sy-pill[data-s="offline"] .sy-dot { background: var(--danger); }
+.sy-pill[data-s="connecting"] .sy-dot { background: var(--lime-200); }
+.sy-back { position: fixed; inset: 0; z-index: 30; background: rgba(24,24,27,.4); display: grid; place-items: end center; padding: 0; }
+@media (min-width: 600px) { .sy-back { place-items: center; padding: 16px; } }
+.sy-card { width: 100%; max-width: 480px; display: grid; gap: 14px; background: #fff; color: var(--lc-fg);
+  border-radius: 24px 24px 0 0; padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px)); box-shadow: var(--shadow-lg); }
+@media (min-width: 600px) { .sy-card { border-radius: 24px; } }
+.sy-card h2 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -.015em; }
+.sy-card p { margin: 0; font-size: 14px; color: var(--lc-fg-2); }
 .sy-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.sy-input { flex: 1 1 160px; min-width: 0; min-height: 44px; padding: 8px 12px; border-radius: 10px;
-  border: 1px solid var(--parch-dim); background: #fff8e6; color: var(--parch-ink); font: inherit; font-size: 16px; }
-.sy-link { display: block; min-width: 0; padding: 10px 12px; border-radius: 10px; background: #fff8e6; color: var(--parch-ink);
-  font-size: 13px; overflow-wrap: anywhere; user-select: all; -webkit-user-select: all; }
-.sy-note { font-size: 12px; color: var(--parch-dim); }
-.sy-card .btn.ghost { color: var(--parch-ink); border-color: var(--parch-dim); }
+.sy-input { flex: 1 1 160px; min-width: 0; min-height: 44px; padding: 8px 14px; border-radius: 12px;
+  border: 1px solid var(--lc-border-strong); background: #fff; color: var(--lc-fg); font: inherit; font-size: 16px; }
+.sy-input:focus { outline: none; border-color: var(--lime-700); box-shadow: 0 0 0 3px var(--lime-100); }
+.sy-link { display: block; min-width: 0; padding: 12px 14px; border-radius: 12px; background: var(--lc-muted); color: var(--lc-fg);
+  font-family: var(--font-mono); font-size: 12px; overflow-wrap: anywhere; user-select: all; -webkit-user-select: all; }
+.sy-note { font-size: 12px !important; color: var(--lc-fg-muted) !important; }
 `;
   function css() { if (!document.getElementById("sy-style")) document.head.append(HP.h("style", { id: "sy-style" }, CSS)); }
 
@@ -223,7 +226,7 @@
     css();
     const old = document.getElementById("sy-back"); if (old) old.remove();
     const back = HP.h("div", { class: "sy-back", id: "sy-back", onclick: (e) => { if (closable && e.target === back) back.remove(); } });
-    const card = HP.h("div", { class: "parchment sy-card", role: "dialog", "aria-label": "4人で同期" });
+    const card = HP.h("div", { class: "sy-card", role: "dialog", "aria-label": "4人で同期" });
     if (ROOM) {
       const url = shareUrl(ROOM);
       const copy = HP.h("button", { type: "button", class: "btn", onclick: async () => {
@@ -232,7 +235,7 @@
       } }, "リンクをコピー");
       const link = HP.h("span", { class: "sy-link" }, url);
       card.append(
-        HP.h("h2", { class: "h-display" }, "4人で同期"),
+        HP.h("span", { class: "eyebrow" }, "SYNC"), HP.h("h2", null, "4人で同期"),
         HP.h("p", null, "このリンクを LINE で3人に送ると、分霊箱・ふくろう便・写真・新聞・飲みゲームのお題が全員のスマホで同じになります。"),
         link,
         HP.h("div", { class: "sy-row" }, copy,
@@ -243,7 +246,7 @@
     } else {
       const input = HP.h("input", { class: "sy-input", id: "sy-code", type: "text", placeholder: "合言葉（例 uniba-7k3q9m）", autocomplete: "off", autocapitalize: "off" });
       card.append(
-        HP.h("h2", { class: "h-display" }, "4人で同期する"),
+        HP.h("span", { class: "eyebrow" }, "START"), HP.h("h2", null, "4人で同期する"),
         HP.h("p", null, "1人が「旅をはじめる」を押して、出てきたリンクを LINE で3人に送ってください。届いたリンクを開けば、同じ旅に入れます。"),
         HP.h("div", { class: "sy-row" }, HP.h("button", { type: "button", class: "btn", onclick: () => go(newRoom()) }, "旅をはじめる")),
         HP.h("p", { class: "sy-note" }, "合言葉を聞いた人はここに入力"),

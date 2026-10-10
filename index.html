@@ -1,63 +1,96 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#12131f"><meta name="apple-mobile-web-app-capable" content="yes"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff"><meta name="apple-mobile-web-app-capable" content="yes"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
 <title>魔法の旅のしおり</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
 <style>
-/* レイアウト: 夜の城の中に羊皮紙のカードが浮かぶ、1 画面アプリ。下に 3 つのタブ。単一テーマ（夜）で固定 */
+/* デザイン: locore（Editorial Light / Locore Lime）を転用。
+ * 白地 × インクの黒 × ライムの差し色。カードは 1px の罫線と弱い影、ボタンはピル。
+ * 英字の小見出しは等幅＋字間広め。明朝は使わない。 */
 :root {
-  color-scheme: dark;
-  --night: #12131f;        /* 背景 */
-  --night-2: #1c1e30;      /* 一段上の面 */
-  --ink: #f1e9d6;          /* 夜の上の文字 */
-  --ink-dim: #b7ad97;      /* 補助文字 */
-  --gold: #d9b45a;         /* アクセント */
-  --gold-deep: #9c7a2c;
-  --parch: #efe3c4;        /* 羊皮紙 */
-  --parch-ink: #2b2116;    /* 羊皮紙の上の文字 */
-  --parch-dim: #6b5a43;
-  --line: rgba(217, 180, 90, 0.28);
-  /* 4 寮 */
-  --gry: #a8242c; --gry-2: #e3b14a;
-  --sly: #1f6b45; --sly-2: #c9ced6;
-  --rav: #2b4c9a; --rav-2: #c6995a;
-  --huf: #e2b52a; --huf-2: #2a2620;
-  --font-display: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
-  --font-body: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
-  --radius: 14px;
+  color-scheme: light;
+  /* locore tokens */
+  --lc-bg: #FFFFFF;
+  --lc-surface: #FFFFFF;
+  --lc-muted: #F4F4F5;
+  --lc-border: #E3E3DA;
+  --lc-border-strong: #CCCCC1;
+  --lc-fg: #18181b;
+  --lc-fg-2: #3f3f46;
+  --lc-fg-muted: #71717a;
+  --lc-fg-subtle: #837f78;
+  --lime: #A8E01C;
+  --lime-300: #B6E84E;
+  --lime-200: #CDF088;
+  --lime-100: #E3F7B8;
+  --lime-50: #F5FBE2;
+  --lime-700: #5E8B0E;
+  --lime-900: #3D5E07;
+  --danger: #dc2626;
+  --shadow-xs: 0 1px 2px rgba(24,24,27,.04);
+  --shadow-sm: 0 2px 6px rgba(24,24,27,.06);
+  --shadow-md: 0 6px 16px rgba(24,24,27,.08);
+  --shadow-lg: 0 16px 32px rgba(24,24,27,.12);
+  --ease-out: cubic-bezier(.16,1,.3,1);
+  --font-jp: "Noto Sans JP", system-ui, -apple-system, "Hiragino Sans", "Yu Gothic Medium", sans-serif;
+  --font-latin: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", monospace;
+
+  /* 旧トークン（各画面が参照）を locore の色に読み替える */
+  --night: var(--lc-bg);
+  --night-2: var(--lc-muted);
+  --ink: var(--lc-fg);
+  --ink-dim: var(--lc-fg-muted);
+  --gold: var(--lime-700);
+  --gold-deep: var(--lime-900);
+  --parch: var(--lc-surface);
+  --parch-ink: var(--lc-fg);
+  --parch-dim: var(--lc-fg-muted);
+  --line: var(--lc-border);
+  /* 4 寮（彩度を落として白地になじませる） */
+  --gry: #9b2c2c; --gry-2: #ffffff;
+  --sly: #2f6b4f; --sly-2: #ffffff;
+  --rav: #2f4a8a; --rav-2: #ffffff;
+  --huf: #d9a91c; --huf-2: #18181b;
+  --font-display: var(--font-jp);
+  --font-body: var(--font-jp);
+  --radius: 16px;
   --nav-h: 64px;
 }
 html, body { height: 100%; }
 body {
-  background: var(--night);
-  background-image: radial-gradient(ellipse at 50% -10%, #2a2c4a 0%, transparent 60%);
-  background-attachment: fixed;
-  color: var(--ink);
-  font-family: var(--font-body);
+  background: var(--lc-bg);
+  color: var(--lc-fg);
+  font-family: var(--font-jp);
   font-size: 16px;
-  line-height: 1.7;
+  line-height: 1.75;
+  font-feature-settings: "palt" 1;
+  letter-spacing: .005em;
   -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
-* { box-sizing: border-box; }
-button { font: inherit; color: inherit; }
-:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; touch-action: manipulation; }
+h1, h2, h3, h4 { letter-spacing: -.01em; }
+:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
 
 .app-header {
   position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   padding: 10px 16px;
-  background: rgba(18, 19, 31, 0.92);
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  border-bottom: 1px solid var(--line);
+  background: rgba(255,255,255,.92);
+  backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid var(--lc-border);
 }
 .app-title {
-  min-width: 0; margin: 0;
-  font-family: var(--font-display); font-weight: 800; font-size: 18px;
-  letter-spacing: 0.08em; color: var(--gold);
+  min-width: 0; margin: 0; display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-jp); font-weight: 700; font-size: 16px; letter-spacing: -.01em; color: var(--lc-fg);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.app-sub { flex-shrink: 0; white-space: nowrap; font-size: 12px; color: var(--ink-dim); }
+.app-title::before { content: ""; flex-shrink: 0; width: 10px; height: 10px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 3px var(--lime-100); }
+.app-sub { flex-shrink: 0; white-space: nowrap; font-size: 12px; color: var(--lc-fg-muted); }
 
 main.view {
   max-width: 560px; margin: 0 auto;
@@ -69,40 +102,46 @@ main.view {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
   display: grid; grid-template-columns: repeat(3, 1fr);
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: rgba(18, 19, 31, 0.97);
-  border-top: 1px solid var(--line);
+  background: rgba(255,255,255,.96);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid var(--lc-border);
 }
 .tabbar button {
-  min-width: 0; min-height: var(--nav-h);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  position: relative; min-width: 0; min-height: var(--nav-h);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
   background: none; border: 0; cursor: pointer;
-  color: var(--ink-dim); font-size: 12px; white-space: nowrap;
+  color: var(--lc-fg-muted); font-size: 11px; font-weight: 500; white-space: nowrap;
 }
-.tabbar button .ico { font-family: var(--font-display); font-size: 20px; line-height: 1; }
-.tabbar button[aria-current="page"] { color: var(--gold); }
+.tabbar button .ico { font-size: 18px; line-height: 1; }
+.tabbar button[aria-current="page"] { color: var(--lc-fg); font-weight: 700; }
+.tabbar button[aria-current="page"]::before { content: ""; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--lime); }
 
 /* 共通部品（各モジュールが使ってよい） */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  min-height: 44px; padding: 10px 18px;
-  border-radius: 999px; border: 1px solid var(--gold);
-  background: var(--gold); color: var(--parch-ink);
-  font-weight: 700; white-space: nowrap; cursor: pointer;
-  flex-shrink: 0;
+  min-height: 44px; padding: 10px 22px;
+  border-radius: 9999px; border: 1px solid var(--lime);
+  background: var(--lime); color: #0e0e0f;
+  font-weight: 700; font-size: 15px; white-space: nowrap; cursor: pointer;
+  flex-shrink: 0; box-shadow: var(--shadow-sm);
+  transition: transform .12s var(--ease-out), background .2s;
 }
-.btn.ghost { background: transparent; color: var(--gold); }
-.btn:disabled { opacity: 0.4; cursor: default; }
+.btn:active { transform: scale(.97); }
+.btn.ghost { background: #fff; color: var(--lc-fg-2); border-color: var(--lc-border-strong); box-shadow: none; }
+.btn:disabled { opacity: .4; cursor: default; }
 .parchment {
-  background: var(--parch); color: var(--parch-ink);
+  background: var(--lc-surface); color: var(--lc-fg);
+  border: 1px solid var(--lc-border);
   border-radius: var(--radius);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.35), inset 0 0 40px rgba(120, 85, 30, 0.18);
+  box-shadow: var(--shadow-sm);
   padding: 20px 18px;
 }
-.h-display { font-family: var(--font-display); font-weight: 800; text-wrap: balance; letter-spacing: 0.04em; }
-.muted { color: var(--ink-dim); }
+.h-display { font-family: var(--font-jp); font-weight: 700; text-wrap: balance; letter-spacing: -.015em; }
+.muted { color: var(--lc-fg-muted); }
+.eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--lime-700); }
 .house-chip {
   display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; white-space: nowrap;
-  padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
+  padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 700;
 }
 .house-chip[data-house="gryffindor"] { background: var(--gry); color: var(--gry-2); }
 .house-chip[data-house="slytherin"]  { background: var(--sly); color: var(--sly-2); }
@@ -111,11 +150,11 @@ main.view {
 
 .toast {
   position: fixed; left: 50%; top: calc(64px + env(safe-area-inset-top, 0px));
-  transform: translateX(-50%); z-index: 20;
+  transform: translateX(-50%); z-index: 40;
   max-width: calc(100% - 32px);
-  padding: 10px 16px; border-radius: 999px;
-  background: var(--parch); color: var(--parch-ink); font-weight: 700; font-size: 14px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  padding: 10px 18px; border-radius: 9999px;
+  background: var(--lc-fg); color: #fff; font-weight: 600; font-size: 14px;
+  box-shadow: var(--shadow-lg);
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
