@@ -585,245 +585,258 @@
 
   /* ---------- CSS ---------- */
   const CSS = `
+/* 紙面の外側は locore の白い UI（index.html のトークン）。
+ * 紙面（.pp-paper）だけは生成りの紙とインクの黒。飾りは罫線と文字の階層で出す。
+ * 紙面の中は html2canvas で画像にするので、border・background-color・font だけで組む */
 .pp-wrap { display: grid; gap: 16px; min-width: 0; }
 .pp-wrap [hidden] { display: none !important; }
 .pp-vh { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
+/* ---- 入力フォーム（白いカード） ---- */
 .pp-form {
-  min-width: 0; display: grid; gap: 18px;
-  padding: 18px 16px; border-radius: var(--radius);
-  background: var(--night-2); border: 1px solid var(--line);
+  min-width: 0; display: grid; gap: 20px;
+  padding: 20px 18px; border-radius: var(--radius);
+  background: var(--lc-surface); border: 1px solid var(--lc-border); box-shadow: var(--shadow-sm);
 }
-.pp-form-title { margin: 0; font-size: 20px; color: var(--gold); line-height: 1.4; }
-.pp-lead { margin: 4px 0 0; font-size: 14px; }
+.pp-form .eyebrow { margin: 0 0 4px; }
+.pp-form-title { margin: 0; font-size: 20px; font-weight: 700; color: var(--lc-fg); line-height: 1.4; min-width: 0; }
+.pp-lead { margin: 6px 0 0; font-size: 14px; line-height: 1.7; }
 .pp-field { display: grid; gap: 8px; min-width: 0; margin: 0; padding: 0; border: 0; }
-.pp-label { font-weight: 700; font-size: 15px; color: var(--ink); padding: 0; }
-.pp-hint { font-size: 13px; color: var(--ink-dim); margin: 0; }
+.pp-label { font-weight: 700; font-size: 14px; color: var(--lc-fg); padding: 0; }
+.pp-hint { font-size: 12px; line-height: 1.6; color: var(--lc-fg-muted); margin: 0; }
 .pp-input {
   width: 100%; max-width: 100%; min-height: 44px; min-width: 0;
-  padding: 10px 12px; border-radius: 10px;
-  background: var(--night); color: var(--ink);
-  border: 1px solid var(--line); font: inherit; font-size: 16px; line-height: 1.5;
+  padding: 10px 14px; border-radius: 12px;
+  background: #fff; color: var(--lc-fg);
+  border: 1px solid var(--lc-border-strong); font: inherit; font-size: 16px; line-height: 1.5;
+  transition: border-color .2s var(--ease-out), box-shadow .2s var(--ease-out);
 }
 textarea.pp-input { min-height: 88px; resize: vertical; }
-.pp-input:focus { border-color: var(--gold); outline: none; box-shadow: 0 0 0 2px rgba(217,180,90,.35); }
+.pp-input::placeholder { color: var(--lc-fg-subtle); }
+.pp-input:focus { border-color: var(--lime-700); outline: none; box-shadow: 0 0 0 3px var(--lime-100); }
 
-.pp-photo-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-width: 0; }
+.pp-photo-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
 .pp-photo-row .btn { position: relative; }
-.pp-photo-row .btn:has(input:focus-visible) { outline: 2px solid var(--gold); outline-offset: 2px; }
+.pp-photo-row .btn:has(input:focus-visible) { outline: 2px solid var(--lime); outline-offset: 2px; }
 
 /* メイン写真の候補。折り返しのグリッド（402px で 3 列、320px で 2 列） */
 .pp-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; min-width: 0; }
 .pp-pick-btn {
-  display: grid; grid-template-rows: auto auto; gap: 4px; align-content: start;
-  min-width: 0; min-height: 44px; padding: 4px 4px 6px; margin: 0;
-  border-radius: 10px; border: 2px solid var(--line); background: rgba(0,0,0,.18);
-  color: var(--ink); cursor: pointer; text-align: center; font: inherit;
+  display: grid; grid-template-rows: auto auto; gap: 6px; align-content: start;
+  min-width: 0; min-height: 44px; padding: 4px 4px 8px; margin: 0;
+  border-radius: 12px; border: 1px solid var(--lc-border); background: #fff;
+  color: var(--lc-fg-2); cursor: pointer; text-align: center; font: inherit;
+  transition: border-color .2s var(--ease-out), background-color .2s var(--ease-out), transform .12s var(--ease-out);
 }
-.pp-pick-btn[aria-pressed="true"] { border-color: var(--gold); background: rgba(217,180,90,.16); }
+.pp-pick-btn:active { transform: scale(.97); }
+.pp-pick-btn[aria-pressed="true"] { border-color: var(--lime); background: var(--lime-50); box-shadow: 0 0 0 1px var(--lime); color: var(--lc-fg); }
 .pp-pick-media {
   position: relative; display: block; width: 100%; aspect-ratio: 1; overflow: hidden;
-  border-radius: 6px; background: #2a2620;
+  border-radius: 8px; background: var(--lc-muted);
 }
-.pp-pick-media img, .pp-pick-media video {
-  display: block; width: 100%; height: 100%; object-fit: cover; filter: sepia(.6) grayscale(.2);
-}
-.pp-pick-none { display: grid; place-items: center; font-size: 22px; color: var(--ink-dim); }
+.pp-pick-media img, .pp-pick-media video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pp-pick-none { display: grid; place-items: center; font-size: 20px; color: var(--lc-fg-subtle); }
 .pp-pick-check {
   position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%;
-  display: none; place-items: center; background: var(--gold); color: var(--parch-ink);
-  font-size: 14px; font-weight: 700; line-height: 1;
+  display: none; place-items: center; background: var(--lime); color: #0e0e0f;
+  font-size: 13px; font-weight: 700; line-height: 1; box-shadow: var(--shadow-sm);
 }
 .pp-pick-btn[aria-pressed="true"] .pp-pick-check { display: grid; }
 .pp-pick-name {
-  min-width: 0; font-size: 12px; line-height: 1.35; overflow-wrap: anywhere;
+  min-width: 0; font-size: 12px; font-weight: 500; line-height: 1.4; overflow-wrap: anywhere;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
 
+/* トーン（ラジオのカード） */
 .pp-tones { display: grid; gap: 8px; }
 .pp-tone {
-  display: flex; align-items: center; gap: 12px; min-width: 0; min-height: 52px;
+  display: flex; align-items: center; gap: 12px; min-width: 0; min-height: 56px;
   padding: 10px 14px; border-radius: 12px; cursor: pointer;
-  border: 1px solid var(--line); background: rgba(0,0,0,.18);
+  border: 1px solid var(--lc-border); background: #fff;
+  transition: border-color .2s var(--ease-out), background-color .2s var(--ease-out);
 }
-.pp-tone input { flex-shrink: 0; width: 22px; height: 22px; margin: 0; accent-color: var(--gold); }
+.pp-tone input { flex-shrink: 0; width: 20px; height: 20px; margin: 0; accent-color: var(--lime-700); }
 .pp-tone-text { flex: 1; min-width: 0; display: grid; }
-.pp-tone-name { font-weight: 700; font-size: 16px; line-height: 1.4; }
-.pp-tone-desc { font-size: 13px; color: var(--ink-dim); line-height: 1.5; }
-.pp-tone:has(input:checked) { border-color: var(--gold); background: rgba(217,180,90,.12); }
+.pp-tone-name { font-weight: 700; font-size: 15px; line-height: 1.45; color: var(--lc-fg); }
+.pp-tone-desc { font-size: 12px; color: var(--lc-fg-muted); line-height: 1.55; }
+.pp-tone:has(input:checked) { border-color: var(--lime); background: var(--lime-50); box-shadow: 0 0 0 1px var(--lime); }
 
-.pp-print { width: 100%; font-size: 17px; min-height: 52px; }
+.pp-print { width: 100%; font-size: 16px; min-height: 52px; }
 
 /* ---- 紙面 ---- */
 .pp-out { display: grid; gap: 14px; min-width: 0; scroll-margin-top: 64px; }
 .pp-out:empty { display: none; }
 .pp-paper {
+  --pp-ink: #1b1a17;
+  --pp-ink-2: #3b3833;
+  --pp-dim: #6a655b;
+  --pp-hair: #cdc6b6;
+  --pp-red: #a3241c;
+  --pp-paper: #f4f0e6;
+  --pp-serif: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif JP", serif;
   container: pp / inline-size;
   min-width: 0; max-width: 100%;
-  padding: 16px 14px 18px; border-radius: 6px;
-  color: var(--parch-ink);
-  background-color: var(--parch);
-  background-image:
-    radial-gradient(ellipse at 12% 8%, rgba(120,85,30,.18), transparent 45%),
-    radial-gradient(ellipse at 88% 92%, rgba(120,85,30,.22), transparent 50%),
-    radial-gradient(circle at 70% 30%, rgba(160,120,50,.08), transparent 30%),
-    repeating-linear-gradient(0deg, rgba(90,60,20,.035) 0 1px, transparent 1px 3px);
-  box-shadow: 0 12px 30px rgba(0,0,0,.45), inset 0 0 50px rgba(110,75,25,.28);
-  font-family: var(--font-display);
+  padding: 16px 14px 14px; border-radius: 0;
+  color: var(--pp-ink);
+  background-color: var(--pp-paper);
+  border: 1px solid #e2dccd;
+  box-shadow: var(--shadow-md);
+  font-family: var(--pp-serif);
 }
 .pp-mast { text-align: center; min-width: 0; }
 .pp-topline {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 10px;
-  font-family: var(--font-body); font-size: 12px; color: var(--parch-dim);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px;
+  padding-bottom: 6px; border-bottom: 1px solid var(--pp-ink);
+  font-family: var(--font-jp); font-size: 12px; color: var(--pp-dim); text-align: left;
 }
 .pp-stamp {
   flex-shrink: 0; white-space: nowrap;
-  padding: 1px 10px; border: 2px solid #8a1f1f; color: #8a1f1f; border-radius: 4px;
-  font-family: var(--font-display); font-weight: 800; font-size: 13px; letter-spacing: .2em;
-  transform: rotate(-3deg);
+  padding: 0 8px; border: 1px solid var(--pp-red); color: var(--pp-red);
+  font-family: var(--font-jp); font-weight: 700; font-size: 12px; line-height: 1.6; letter-spacing: .2em;
 }
-.pp-tag { min-width: 0; }
+.pp-tag { min-width: 0; letter-spacing: .04em; }
 .pp-title-row {
-  display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 0;
-  margin: 6px 0 4px;
+  display: flex; align-items: center; justify-content: center; min-width: 0;
+  margin: 10px 0 8px;
 }
-.pp-orn { flex-shrink: 0; white-space: nowrap; font-size: clamp(14px, 4.5vw, 22px); color: var(--parch-dim); line-height: 1; }
+/* 320px 幅（紙面の内側 約 258px）でも 1 行に収まる大きさ */
 .pp-title {
   min-width: 0; margin: 0; white-space: nowrap;
-  font-family: var(--font-display); font-weight: 800;
-  font-size: clamp(24px, 8.6vw, 46px); line-height: 1.15; letter-spacing: .06em;
-  color: #1e160d;
-  text-shadow: 1px 1px 0 rgba(255,255,255,.35), 0 0 1px rgba(0,0,0,.4);
+  font-family: var(--pp-serif); font-weight: 800;
+  font-size: clamp(26px, 9.2vw, 46px); line-height: 1.1; letter-spacing: .04em;
+  color: var(--pp-ink);
 }
 .pp-meta {
   display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 2px 12px;
-  padding: 5px 2px; margin-top: 6px;
-  border-top: 3px double var(--parch-ink); border-bottom: 3px double var(--parch-ink);
-  font-family: var(--font-body); font-size: 12px; font-weight: 700; color: var(--parch-ink);
+  padding: 5px 0; margin-top: 4px;
+  border-top: 3px solid var(--pp-ink); border-bottom: 1px solid var(--pp-ink);
+  font-family: var(--font-jp); font-size: 12px; font-weight: 500; color: var(--pp-ink-2);
+  font-variant-numeric: tabular-nums;
 }
 .pp-meta span { flex-shrink: 0; white-space: nowrap; }
 
-.pp-grid { display: grid; gap: 16px; margin-top: 14px; min-width: 0; }
+.pp-grid { display: grid; gap: 18px; margin-top: 16px; min-width: 0; }
 .pp-main, .pp-side { min-width: 0; }
 .pp-kicker {
   display: inline-block; white-space: nowrap; max-width: 100%;
-  padding: 2px 10px; background: var(--parch-ink); color: var(--parch);
-  font-family: var(--font-body); font-weight: 700; font-size: 12px; letter-spacing: .12em;
+  padding: 0 0 2px; border-bottom: 2px solid var(--pp-red); color: var(--pp-red);
+  font-family: var(--font-jp); font-weight: 700; font-size: 12px; letter-spacing: .14em;
 }
 .pp-headline {
-  margin: 8px 0 6px; min-width: 0;
-  font-weight: 800; font-size: clamp(22px, 7vw, 32px); line-height: 1.3; letter-spacing: .02em;
-  text-wrap: balance; overflow-wrap: anywhere;
+  margin: 10px 0 8px; min-width: 0;
+  font-family: var(--pp-serif); font-weight: 800;
+  font-size: clamp(24px, 7.4vw, 34px); line-height: 1.32; letter-spacing: .01em;
+  text-wrap: balance; overflow-wrap: anywhere; color: var(--pp-ink);
 }
 .pp-sub {
-  margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(43,33,22,.45);
-  font-weight: 600; font-size: 16px; line-height: 1.5; color: #3d2f1f; overflow-wrap: anywhere;
+  margin: 0 0 12px; padding-bottom: 10px; border-bottom: 1px solid var(--pp-hair);
+  font-family: var(--font-jp); font-weight: 500; font-size: 15px; line-height: 1.6; color: var(--pp-ink-2); overflow-wrap: anywhere;
 }
-.pp-fig { margin: 0 0 10px; max-width: 100%; }
+.pp-fig { margin: 0 0 12px; max-width: 100%; }
 .pp-frame {
   position: relative; overflow: hidden; aspect-ratio: 4 / 3; max-width: 100%;
-  border: 3px solid #3b2d1c; outline: 1px solid #3b2d1c; outline-offset: 2px;
-  background: #3a2f22;
+  background-color: #2b2925;
 }
 .pp-frame img, .pp-frame video {
   display: block; width: 100%; height: 100%; object-fit: cover;
-  filter: sepia(.85) grayscale(.35) contrast(1.15) brightness(.95);
+  filter: sepia(.75) grayscale(.3) contrast(1.08);
   transform-origin: 50% 45%;
-  animation: pp-move 9s ease-in-out infinite alternate;
-}
-.pp-frame::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 50%, rgba(30,20,10,.55) 100%);
-  animation: pp-flicker 4s steps(2) infinite;
+  animation: pp-move 12s ease-in-out infinite alternate;
 }
 @keyframes pp-move {
-  0%   { transform: scale(1.04) translate(0, 0) rotate(0deg); }
-  35%  { transform: scale(1.09) translate(-1.5%, .8%) rotate(-.6deg); }
-  70%  { transform: scale(1.06) translate(1.2%, -.6%) rotate(.5deg); }
-  100% { transform: scale(1.12) translate(-.5%, 1%) rotate(-.3deg); }
+  0%   { transform: scale(1.03) translate(0, 0); }
+  50%  { transform: scale(1.07) translate(-1%, .6%); }
+  100% { transform: scale(1.09) translate(.8%, -.4%); }
 }
-@keyframes pp-flicker { 0%, 100% { opacity: 1; } 50% { opacity: .82; } }
-.pp-cap { margin-top: 4px; font-family: var(--font-body); font-size: 12px; line-height: 1.5; color: var(--parch-dim); }
-.pp-byline { font-family: var(--font-body); font-size: 12px; color: var(--parch-dim); margin-bottom: 6px; }
-.pp-body p { margin: 0 0 .7em; font-size: 15px; line-height: 1.85; text-align: justify; overflow-wrap: anywhere; font-weight: 600; }
-.pp-body p:first-child::first-letter {
-  float: left; font-size: 2.7em; line-height: 1; font-weight: 800;
-  margin: 4px 6px 0 0; padding: 2px 4px; border: 1px solid var(--parch-ink);
+.pp-cap {
+  margin-top: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--pp-hair);
+  font-family: var(--font-jp); font-size: 12px; line-height: 1.55; color: var(--pp-dim);
 }
+.pp-byline {
+  margin-bottom: 8px; font-family: var(--font-jp); font-size: 12px; font-weight: 700; color: var(--pp-ink-2);
+  letter-spacing: .04em;
+}
+.pp-body p {
+  margin: 0 0 .8em; font-family: var(--pp-serif); font-weight: 500;
+  font-size: 15px; line-height: 1.9; text-align: justify; overflow-wrap: anywhere; color: var(--pp-ink);
+}
+.pp-body p:last-child { margin-bottom: 0; }
 
-.pp-side { display: grid; gap: 12px; align-content: start; }
-.pp-box { min-width: 0; padding: 10px 12px; border: 1px solid rgba(43,33,22,.55); background: rgba(255,250,235,.25); }
+/* サイド欄：枠で囲まず、上の罫線と小見出しで区切る */
+.pp-side { display: grid; gap: 16px; align-content: start; }
+.pp-box { min-width: 0; padding-top: 8px; border-top: 2px solid var(--pp-ink); }
 .pp-box-h {
-  margin: 0 0 6px; padding-bottom: 4px; border-bottom: 2px solid var(--parch-ink);
-  font-weight: 800; font-size: 15px; letter-spacing: .08em;
+  margin: 0 0 6px;
+  font-family: var(--font-jp); font-weight: 700; font-size: 13px; letter-spacing: .1em; color: var(--pp-ink);
 }
-.pp-hx { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font-family: var(--font-body); font-size: 14px; line-height: 1.5; }
-.pp-hx li { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
-.pp-hx-name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.pp-hx { list-style: none; margin: 0; padding: 0; display: grid; font-family: var(--font-jp); font-size: 13px; line-height: 1.5; }
+.pp-hx li { display: flex; align-items: baseline; gap: 8px; min-width: 0; padding: 4px 0; border-bottom: 1px solid var(--pp-hair); }
+.pp-hx-name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; color: var(--pp-ink-2); }
 .pp-hx-mark { flex-shrink: 0; white-space: nowrap; font-weight: 700; min-width: 1.5em; text-align: center; }
-.pp-hx li.is-done .pp-hx-mark { color: #8a1f1f; }
-.pp-hx li:not(.is-done) .pp-hx-mark { color: var(--parch-dim); font-weight: 400; }
-.pp-hx-sum { margin: 6px 0 0; font-family: var(--font-body); font-size: 13px; font-weight: 700; }
-.pp-count { flex-shrink: 0; white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
-.pp-mvp { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-family: var(--font-body); font-size: 14px; }
-.pp-mvp-name { min-width: 0; font-family: var(--font-display); font-weight: 800; font-size: 18px; overflow-wrap: anywhere; }
-.pp-small { font-family: var(--font-body); font-size: 13px; line-height: 1.6; margin: 0; overflow-wrap: anywhere; }
-.pp-ad { text-align: center; border: 3px double var(--parch-ink); }
-.pp-ad-title { font-weight: 800; font-size: 17px; line-height: 1.35; margin: 0 0 4px; overflow-wrap: anywhere; }
-.pp-ad-foot { margin-top: 4px; font-family: var(--font-body); font-size: 12px; color: var(--parch-dim); }
+.pp-hx li.is-done .pp-hx-name { color: var(--pp-ink); font-weight: 500; }
+.pp-hx li.is-done .pp-hx-mark { color: var(--pp-red); }
+.pp-hx li:not(.is-done) .pp-hx-mark { color: var(--pp-dim); font-weight: 400; }
+.pp-hx-sum { margin: 8px 0 0; font-family: var(--font-jp); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pp-count { flex-shrink: 0; white-space: nowrap; font-family: var(--font-jp); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--pp-ink-2); }
+.pp-mvp { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-family: var(--font-jp); font-size: 14px; }
+.pp-mvp-name { min-width: 0; font-family: var(--pp-serif); font-weight: 800; font-size: 19px; line-height: 1.35; overflow-wrap: anywhere; }
+.pp-small { font-family: var(--font-jp); font-size: 13px; line-height: 1.7; margin: 0; overflow-wrap: anywhere; color: var(--pp-ink-2); }
+/* 広告だけは枠で囲む（紙面の中の「別もの」） */
+.pp-ad { text-align: center; padding: 12px; border: 1px solid var(--pp-ink); }
+.pp-ad-title { font-family: var(--pp-serif); font-weight: 800; font-size: 17px; line-height: 1.4; margin: 0 0 6px; overflow-wrap: anywhere; }
+.pp-ad-foot { margin-top: 6px; font-family: var(--font-jp); font-size: 12px; color: var(--pp-dim); }
 /* 紙面の下：本日の動く写真 */
-.pp-gallery { margin-top: 14px; padding-top: 8px; border-top: 3px double var(--parch-ink); min-width: 0; }
-.pp-gallery-h { margin: 0 0 8px; text-align: center; font-weight: 800; font-size: 16px; letter-spacing: .1em; }
+.pp-gallery { margin-top: 18px; padding-top: 8px; border-top: 3px solid var(--pp-ink); min-width: 0; }
+.pp-gallery-h { margin: 0 0 10px; font-family: var(--font-jp); font-weight: 700; font-size: 13px; letter-spacing: .1em; }
 .pp-gal { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 10px; min-width: 0; }
 .pp-gal li { min-width: 0; margin: 0; }
-.pp-gal-frame { aspect-ratio: 1; overflow: hidden; border: 2px solid #3b2d1c; background: #3a2f22; }
+.pp-gal-frame { aspect-ratio: 1; overflow: hidden; background-color: #2b2925; }
 .pp-gal-frame img, .pp-gal-frame video {
   display: block; width: 100%; height: 100%; object-fit: cover;
-  filter: sepia(.85) grayscale(.35) contrast(1.1) brightness(.95);
+  filter: sepia(.75) grayscale(.3) contrast(1.06);
 }
-.pp-gal-cap { margin-top: 3px; font-family: var(--font-body); font-size: 12px; line-height: 1.4; text-align: center; color: var(--parch-dim); overflow-wrap: anywhere; }
+.pp-gal-cap { margin-top: 4px; font-family: var(--font-jp); font-size: 12px; line-height: 1.4; color: var(--pp-dim); overflow-wrap: anywhere; }
 .pp-foot {
-  margin-top: 12px; padding-top: 6px; border-top: 1px solid rgba(43,33,22,.45);
-  text-align: center; font-family: var(--font-body); font-size: 12px; color: var(--parch-dim);
+  margin-top: 16px; padding-top: 8px; border-top: 1px solid var(--pp-ink);
+  text-align: center; font-family: var(--font-jp); font-size: 12px; color: var(--pp-dim);
 }
 
-.pp-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; min-width: 0; }
+/* ---- 紙面の下（白い UI） ---- */
+.pp-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; min-width: 0; }
 .pp-actions .btn { flex-shrink: 0; white-space: nowrap; min-height: 44px; }
 .pp-share {
-  margin: 0; padding: 10px 14px; border-radius: 12px; border: 1px dashed var(--line);
-  font-size: 14px; text-align: center; color: var(--ink); min-width: 0; overflow-wrap: anywhere;
+  margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--lc-muted);
+  font-size: 13px; line-height: 1.6; text-align: center; color: var(--lc-fg-muted); min-width: 0; overflow-wrap: anywhere;
 }
 /* 画像にした紙面（長押しで保存） */
-.pp-shot { display: grid; gap: 8px; min-width: 0; margin: 0; }
+.pp-shot { display: grid; gap: 10px; min-width: 0; margin: 0; }
 .pp-shot-guide {
   margin: 0; padding: 10px 14px; border-radius: 12px; min-width: 0;
-  background: rgba(217,180,90,.14); border: 1px solid var(--gold);
-  font-size: 15px; font-weight: 700; line-height: 1.6; text-align: center; color: var(--ink); overflow-wrap: anywhere;
+  background: var(--lime-50); border: 1px solid var(--lime-100); color: var(--lime-900);
+  font-size: 14px; font-weight: 700; line-height: 1.6; text-align: center; overflow-wrap: anywhere;
 }
 .pp-shot-img {
-  display: block; width: 100%; max-width: 100%; height: auto; border-radius: 6px;
+  display: block; width: 100%; max-width: 100%; height: auto; border-radius: 4px;
+  border: 1px solid var(--lc-border);
   -webkit-touch-callout: default; -webkit-user-select: auto; user-select: auto;
-  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  box-shadow: var(--shadow-md);
 }
 /* 書き出し中だけ：動きを止め、焼き込んだ写真にはフィルタを重ねない */
-.pp-snap .pp-frame img, .pp-snap .pp-frame video, .pp-snap .pp-frame::after { animation: none !important; transform: none !important; }
+.pp-snap .pp-frame img, .pp-snap .pp-frame video { animation: none !important; transform: none !important; }
 .pp-baked { filter: none !important; }
-/* html2canvas は ::first-letter の回り込みを描けず字が離れるので、書き出し中は普通の字に */
-.pp-snap .pp-body p:first-child::first-letter { float: none; font-size: inherit; margin: 0; padding: 0; border: 0; }
 .pp-vid-ph {
   width: 100%; height: 100%; display: grid; place-items: center; padding: 8px; box-sizing: border-box;
-  background: #3a2f22; color: var(--parch); text-align: center;
-  font-family: var(--font-body); font-size: 14px; font-weight: 700; line-height: 1.4; overflow-wrap: anywhere;
+  background-color: #2b2925; color: #f4f0e6; text-align: center;
+  font-family: var(--font-jp); font-size: 14px; font-weight: 700; line-height: 1.4; overflow-wrap: anywhere;
 }
 .pp-gal-frame .pp-vid-ph { font-size: 12px; padding: 4px; }
 
 @container pp (min-width: 460px) {
-  .pp-grid { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 18px; }
-  .pp-side { border-left: 1px solid rgba(43,33,22,.45); padding-left: 14px; }
+  .pp-grid { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 20px; }
+  .pp-side { border-left: 1px solid var(--pp-hair); padding-left: 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pp-frame img, .pp-frame video, .pp-frame::after { animation: none !important; }
-  .pp-frame img, .pp-frame video { transform: scale(1.04); }
+  .pp-frame img, .pp-frame video { animation: none !important; transform: scale(1.03); }
 }
 `;
 
@@ -926,9 +939,7 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
       h("header", { class: "pp-mast" },
         h("div", { class: "pp-topline" }, h("span", { class: "pp-stamp" }, "号外"), h("span", { class: "pp-tag" }, a.tagline)),
         h("div", { class: "pp-title-row" },
-          h("span", { class: "pp-orn", "aria-hidden": "true" }, "❦"),
-          h("h2", { class: "pp-title" }, "日刊予言者新聞"),
-          h("span", { class: "pp-orn", "aria-hidden": "true" }, "❦")),
+          h("h2", { class: "pp-title" }, "日刊予言者新聞")),
         h("div", { class: "pp-meta" }, h("span", null, a.date), h("span", null, a.issue), h("span", null, "定価 " + a.price))),
       h("div", { class: "pp-grid" },
         h("div", { class: "pp-main" },
@@ -955,7 +966,7 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
     );
 
     const shot = h("div", { class: "pp-shot-area" },
-      h("p", { class: "pp-share" }, "📸「号外を画像にする」で紙面が1枚の画像になります。長押しで保存して、LINE で4人に送ってね"));
+      h("p", { class: "pp-share" }, "「号外を画像にする」で紙面が1枚の画像になります。長押しで保存して、LINE で4人に送ってね"));
     const shotBtn = h("button", { type: "button", class: "btn", onclick: () => exportImage(paper, shotBtn, shot) }, "号外を画像にする");
 
     els.out.textContent = "";
@@ -1085,7 +1096,7 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
     let blob = null;
     try {
       restore = await swapMedia(paper);
-      const canvas = await window.html2canvas(paper, { scale: 2, backgroundColor: "#efe3c4", useCORS: true, logging: false });
+      const canvas = await window.html2canvas(paper, { scale: 2, backgroundColor: "#f4f0e6", useCORS: true, logging: false });
       blob = await new Promise((res) => {
         if (canvas.toBlob) canvas.toBlob((b) => res(b), "image/png");
         else res(null);
@@ -1155,6 +1166,10 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
     if (!document.getElementById("pp-style")) {
       document.head.append(h("style", { id: "pp-style" }, CSS));
     }
+    // 紙面の中だけ明朝の Web フォント（読めなければシステムの明朝に任せる）
+    if (!document.getElementById("pp-font")) {
+      document.head.append(h("link", { id: "pp-font", rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700;800&display=swap" }));
+    }
     const draft = (HP.state.paper && HP.state.paper.draft) || {};
 
     els.hero = h("select", { class: "pp-input", id: "pp-hero" });
@@ -1204,6 +1219,7 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
 
     els.form = h("form", { class: "pp-form", onsubmit: (e) => { e.preventDefault(); print(false); } },
       h("div", null,
+        h("p", { class: "eyebrow" }, "Daily Prophet"),
         h("h2", { class: "pp-form-title h-display" }, "日刊予言者新聞 号外"),
         h("p", { class: "pp-lead muted" }, "今日の出来事を、魔法界の新聞にします。どれも空のままで大丈夫。")),
       h("div", { class: "pp-field" },
