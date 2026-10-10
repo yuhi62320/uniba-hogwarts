@@ -363,7 +363,9 @@
     canvas.width = width; canvas.height = Math.round(H * k);
     const ctx = canvas.getContext("2d");
     await fontsReady();
-    const src = await loadSource(sourceOf(card));
+    const want = sourceOf(card);
+    const src = await loadSource(want);
+    canvas._photoMissing = !!want && !src; // 写真があるはずなのに読めなかった（あとで描き直す）
 
     const set = SETS[card.set] || SETS.self;
     const rar = RAR[card.rar] ? card.rar : "normal";

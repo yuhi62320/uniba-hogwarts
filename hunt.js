@@ -861,7 +861,8 @@ textarea.hn-input { min-height: 72px; resize: vertical; line-height: 1.5; }
     if (thumbWait.has(key)) return thumbWait.get(key);
     const p = queued(() => CA().render(c, { width: 360 })).then((cv) => {
       const url = cv.toDataURL("image/jpeg", 0.86);
-      thumbCache.set(key, url);
+      if (!cv._photoMissing) thumbCache.set(key, url); // 写真が読めなかった版は覚えない
+      cv.width = cv.height = 0; // iPhone の Safari は canvas のメモリ上限を超えると黒く描くので、すぐ返す
       return url;
     }).catch(() => null).finally(() => thumbWait.delete(key));
     thumbWait.set(key, p);
@@ -872,7 +873,7 @@ textarea.hn-input { min-height: 72px; resize: vertical; line-height: 1.5; }
     return CA().render(c, { width: 750 }).then((cv) => {
       cv.className = "hn-ca-cv";
       cv.setAttribute("role", "img");
-      bigCache.set(key, cv);
+      if (!cv._photoMissing) bigCache.set(key, cv);
       if (bigCache.size > 4) bigCache.delete(bigCache.keys().next().value);
       return cv;
     });
@@ -902,7 +903,12 @@ textarea.hn-input { min-height: 72px; resize: vertical; line-height: 1.5; }
     const shine = c.rar === "legend" ? h("i", { class: "hn-ca-shine", "aria-hidden": "true" }) : null;
     const el = h("div", { class: "hn-ca hn-ca-big", "data-rar": c.rar });
     const key = artKey(c);
-    const put = (cv) => { cv.setAttribute("aria-label", "蛙チョコカード「" + c.name + "」"); el.replaceChildren(cv); if (shine) el.append(shine); };
+    const put = (cv) => {
+      if (!cv._url) { try { cv._url = cv.toDataURL("image/jpeg", 0.92); } catch (e) { cv._url = null; } }
+      if (!bigCache.has(key) && cv._url) cv.width = cv.height = 0; // 覚えない canvas はメモリを返す
+      const view = cv._url ? h("img", { class: "hn-ca-cv", src: cv._url, alt: "蛙チョコカード「" + c.name + "」" }) : cv;
+      el.replaceChildren(view); if (shine) el.append(shine);
+    };
     if (bigCache.has(key)) put(bigCache.get(key));
     else { el.append(cardFront(c, true)); bigOf(c, key).then(put).catch(() => {}); }
     return el;
