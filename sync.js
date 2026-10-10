@@ -50,6 +50,7 @@
   let pushTimer = null;
   let lastSeen = null;  // ポーリング用
   let uploading = 0;
+  let realtimeOk = false; // リアルタイム通知がつながっているか
   try { pending = JSON.parse(localStorage.getItem(PENDING_KEY) || "{}"); } catch (e) {}
 
   function savePending() { try { localStorage.setItem(PENDING_KEY, JSON.stringify(pending)); } catch (e) {} }
@@ -142,10 +143,15 @@
     try {
       client.channel("trip-" + ROOM)
         .on("postgres_changes", { event: "*", schema: "public", table: TABLE, filter: "room=eq." + ROOM }, (p) => applyRows([p.new], false))
-        .subscribe((s) => { if (s === "SUBSCRIBED" && status !== "online") setStatus("online"); });
+        .subscribe((s) => {
+          realtimeOk = s === "SUBSCRIBED";
+          if (realtimeOk && status !== "online") setStatus("online");
+        });
     } catch (e) { console.warn(e); }
-    // リアルタイムが切れても追いつけるように、ときどき差分を読む
-    setInterval(poll, 12000);
+    // リアルタイムがつながらない・切れたときも追いつけるように差分を読む。
+    // つながっていない間は 4 秒おき、つながっていれば 20 秒おき。
+    let ticks = 0;
+    setInterval(() => { ticks++; if (!realtimeOk || ticks % 5 === 0) poll(); }, 4000);
     document.addEventListener("visibilitychange", () => { if (!document.hidden) poll(); });
     window.addEventListener("online", poll);
   }
