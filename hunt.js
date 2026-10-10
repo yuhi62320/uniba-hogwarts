@@ -377,6 +377,8 @@
   const EASE_OUT = "cubic-bezier(.16,1,.3,1)"; // = --ease-out（Web Animations は CSS 変数を読めないので値を写す）
 
   const CSS = `
+.hn-mission .btn.hn-mission-btn { max-width: 100%; white-space: normal; text-align: center; }
+@media (max-width: 360px) { .hn-mission .btn.hn-mission-btn { width: 100%; } }
 /* locore（Editorial Light / Locore Lime）。色はすべて index.html の :root トークンを参照する */
 .hn { display: block; padding-bottom: 8px; }
 .hn .eyebrow, .hn-panel .eyebrow, .hn-clear .eyebrow { display: block; font-size: 12px; line-height: 1.5; }
@@ -1057,7 +1059,7 @@ textarea.hn-input { min-height: 72px; resize: vertical; line-height: 1.5; }
       h("div", { class: "hn-mission-txt" },
         h("span", { class: "hn-tip", style: { margin: 0 } }, label),
         h("b", null, c.name),
-        h("button", { type: "button", class: "btn hn-s", onclick: () => openSheet(c.key) }, btnText)));
+        h("button", { type: "button", class: "btn hn-s hn-mission-btn", onclick: () => openSheet(c.key) }, btnText)));
   }
 
   function letterContent(L) {

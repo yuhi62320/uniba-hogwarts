@@ -231,5 +231,15 @@
     },
   };
 
+  /* 標準の replaceChildren / append は null を「null」という文字で描いてしまう。
+   * HP.h と同じく、null・false・入れ子の配列を読み飛ばすようにそろえる。 */
+  ["replaceChildren", "append"].forEach((name) => {
+    const orig = Element.prototype[name];
+    if (!orig) return;
+    Element.prototype[name] = function (...nodes) {
+      return orig.apply(this, nodes.flat(Infinity).filter((n) => n != null && n !== false));
+    };
+  });
+
   window.HP = HP;
 })();

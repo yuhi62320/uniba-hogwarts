@@ -242,7 +242,7 @@
       const link = HP.h("span", { class: "sy-link" }, url);
       card.append(
         HP.h("span", { class: "eyebrow" }, "SYNC"), HP.h("h2", null, "4人で同期"),
-        HP.h("p", null, "このリンクを LINE で3人に送ると、分霊箱・ふくろう便・写真・新聞・飲みゲームのお題が全員のスマホで同じになります。"),
+        HP.h("p", null, "このリンクを LINE で3人に送ると、カード・ふくろう便・写真・新聞・飲みゲームのお題が全員のスマホで同じになります。"),
         link,
         HP.h("div", { class: "sy-row" }, copy,
           navigator.share ? HP.h("button", { type: "button", class: "btn ghost", onclick: () => navigator.share({ title: "魔法の旅のしおり", url }).catch(() => {}) }, "送る") : null),
