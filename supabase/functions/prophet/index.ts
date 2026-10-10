@@ -88,7 +88,9 @@ Deno.serve(async (req) => {
   }
   content.push({ type: "text", text: "次の事実をもとに、号外の記事を書いてください。\n\n" + JSON.stringify(facts, null, 2) });
 
-  const client = new Anthropic(); // ANTHROPIC_API_KEY を環境変数から読む
+  // ANTHROPIC_API_KEY を環境変数から読む。ワークスペースに属さないキーなら ANTHROPIC_WORKSPACE_ID も要る
+  const workspace = Deno.env.get("ANTHROPIC_WORKSPACE_ID");
+  const client = new Anthropic(workspace ? { defaultHeaders: { "anthropic-workspace-id": workspace } } : {});
   try {
     const res = await client.beta.messages.create({
       model: MODEL,
