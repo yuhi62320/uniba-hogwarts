@@ -687,70 +687,84 @@
 
   /* ---------- CSS ---------- */
   const CSS = `
-.pp-ai { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; padding: 14px 16px; border-radius: 12px;
-  border: 1px solid var(--lime-100); background: var(--lime-50); cursor: pointer; }
-.pp-ai-input { flex-shrink: 0; width: 22px; height: 22px; margin: 2px 0 0; accent-color: var(--lime-700); }
+.pp-ai { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; padding: 14px 16px; border-radius: 6px;
+  border: 1px solid var(--hw-rule-parch); background: transparent; cursor: pointer; }
+.pp-ai:has(input:checked) { border-color: var(--hw-gold-deep); box-shadow: inset 0 0 0 1px var(--hw-gold-deep); }
+.pp-ai-input { flex-shrink: 0; width: 22px; height: 22px; margin: 2px 0 0; accent-color: var(--hw-gold-deep); }
 .pp-ai-text { min-width: 0; display: grid; gap: 2px; }
-.pp-ai-text b { font-size: 15px; color: var(--lc-fg); }
-.pp-ai-text span { font-size: 12px; color: var(--lc-fg-muted); line-height: 1.6; }
+.pp-ai-text b { font-family: var(--font-display); font-weight: 700; letter-spacing: .04em; font-size: 15px; color: var(--hw-ink); }
+.pp-ai-text span { font-size: 12px; color: var(--hw-ink-dim); line-height: 1.6; }
 .pp-ai:has(input:disabled) { opacity: .6; cursor: default; }
-/* 紙面の外側は locore の白い UI（index.html のトークン）。
+/* 紙面の外側は「夜のホグワーツ」（濃紺の地・羊皮紙のカード・金。index.html の --hw-* トークン）。
  * 紙面（.pp-paper）だけは生成りの紙とインクの黒。飾りは罫線と文字の階層で出す。
  * 紙面の中は html2canvas で画像にするので、border・background-color・font だけで組む */
-.pp-wrap { display: grid; gap: 16px; min-width: 0; }
+.pp-wrap { display: grid; gap: 16px; min-width: 0; color: var(--hw-on-night); }
 .pp-wrap [hidden] { display: none !important; }
 .pp-vh { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
-/* ---- 入力フォーム（白いカード） ---- */
+/* ---- 入力フォーム（羊皮紙のカード） ---- */
 .pp-form {
   min-width: 0; display: grid; gap: 20px;
-  padding: 20px 18px; border-radius: var(--radius);
-  background: var(--lc-surface); border: 1px solid var(--lc-border); box-shadow: var(--shadow-sm);
+  padding: 20px 18px; border-radius: 10px;
+  background: var(--hw-parch); color: var(--hw-ink);
+  border: 1px solid var(--hw-rule-parch); box-shadow: 0 2px 10px rgba(0, 0, 0, .25);
 }
-.pp-form .eyebrow { margin: 0 0 4px; }
-.pp-form-title { margin: 0; font-size: 20px; font-weight: 700; color: var(--lc-fg); line-height: 1.4; min-width: 0; }
-.pp-lead { margin: 6px 0 0; font-size: 14px; line-height: 1.7; }
+.pp-form .eyebrow { margin: 0 0 4px; color: var(--hw-gold-deep); }
+.pp-form-title {
+  margin: 0; min-width: 0; font-family: var(--font-display); font-size: 21px; font-weight: 800;
+  letter-spacing: .04em; color: var(--hw-ink); line-height: 1.4;
+}
+.pp-lead { margin: 6px 0 0; font-size: 14px; line-height: 1.7; color: var(--hw-ink-dim); }
+/* 見出しの下の区切り：金の細線＋中央の小さな菱形 */
+.pp-form-head { position: relative; min-width: 0; padding-bottom: 18px; border-bottom: 1px solid var(--hw-rule-parch); }
+.pp-form-head::after {
+  content: ""; position: absolute; left: 50%; bottom: -4px; width: 7px; height: 7px;
+  background: var(--hw-parch); border: 1px solid var(--hw-gold-deep); transform: translateX(-50%) rotate(45deg);
+}
 .pp-field { display: grid; gap: 8px; min-width: 0; margin: 0; padding: 0; border: 0; }
-.pp-label { font-weight: 700; font-size: 14px; color: var(--lc-fg); padding: 0; }
-.pp-hint { font-size: 12px; line-height: 1.6; color: var(--lc-fg-muted); margin: 0; }
+.pp-label { font-family: var(--font-display); font-weight: 700; letter-spacing: .04em; font-size: 15px; color: var(--hw-ink); padding: 0; }
+.pp-hint { font-size: 12px; line-height: 1.6; color: var(--hw-ink-dim); margin: 0; }
 .pp-input {
   width: 100%; max-width: 100%; min-height: 44px; min-width: 0;
-  padding: 10px 14px; border-radius: 12px;
-  background: #fff; color: var(--lc-fg);
-  border: 1px solid var(--lc-border-strong); font: inherit; font-size: 16px; line-height: 1.5;
-  transition: border-color .2s var(--ease-out), box-shadow .2s var(--ease-out);
+  padding: 10px 14px; border-radius: 6px;
+  background: transparent; color: var(--hw-ink);
+  border: 1px solid var(--hw-rule-parch); font: inherit; font-size: 16px; line-height: 1.5;
+  transition: border-color .2s ease, box-shadow .2s ease;
 }
 textarea.pp-input { min-height: 88px; resize: vertical; }
-.pp-input::placeholder { color: var(--lc-fg-subtle); }
-.pp-input:focus { border-color: var(--lime-700); outline: none; box-shadow: 0 0 0 3px var(--lime-100); }
+.pp-input::placeholder { color: var(--hw-ink-dim); opacity: .8; }
+.pp-input:focus { border-color: var(--hw-gold-deep); outline: none; box-shadow: 0 0 0 1px var(--hw-gold-deep); }
+.pp-form .btn.ghost { color: var(--hw-gold-deep); border-color: var(--hw-gold-deep); background: transparent; }
 
 .pp-photo-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
-.pp-photo-row .btn { position: relative; }
-.pp-photo-row .btn:has(input:focus-visible) { outline: 2px solid var(--lime); outline-offset: 2px; }
+.pp-photo-row .btn { position: relative; flex-shrink: 0; white-space: nowrap; min-height: 44px; }
+.pp-photo-row .btn:has(input:focus-visible) { outline: 2px solid var(--hw-gold-deep); outline-offset: 2px; }
 
 /* メイン写真の候補。折り返しのグリッド（402px で 3 列、320px で 2 列） */
 .pp-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; min-width: 0; }
 .pp-pick-btn {
   display: grid; grid-template-rows: auto auto; gap: 6px; align-content: start;
   min-width: 0; min-height: 44px; padding: 4px 4px 8px; margin: 0;
-  border-radius: 12px; border: 1px solid var(--lc-border); background: #fff;
-  color: var(--lc-fg-2); cursor: pointer; text-align: center; font: inherit;
-  transition: border-color .2s var(--ease-out), background-color .2s var(--ease-out), transform .12s var(--ease-out);
+  border-radius: 6px; border: 1px solid var(--hw-rule-parch); background: transparent;
+  color: var(--hw-ink-dim); cursor: pointer; text-align: center; font: inherit;
+  transition: border-color .2s ease, transform .12s ease;
 }
 .pp-pick-btn:active { transform: scale(.97); }
-.pp-pick-btn[aria-pressed="true"] { border-color: var(--lime); background: var(--lime-50); box-shadow: 0 0 0 1px var(--lime); color: var(--lc-fg); }
+.pp-pick-btn[aria-pressed="true"] { border-color: var(--hw-gold); box-shadow: 0 0 0 1px var(--hw-gold); color: var(--hw-ink); }
 .pp-pick-media {
   position: relative; display: block; width: 100%; aspect-ratio: 1; overflow: hidden;
-  border-radius: 8px; background: var(--lc-muted);
+  border-radius: 4px; background: var(--hw-night);
 }
 .pp-pick-media img, .pp-pick-media video { display: block; width: 100%; height: 100%; object-fit: cover; }
-.pp-pick-none { display: grid; place-items: center; font-size: 20px; color: var(--lc-fg-subtle); }
+.pp-pick-none { display: grid; place-items: center; font-size: 12px; color: var(--hw-on-night-dim); }
+/* 選択中の印：金の帯に「選択中」の文字 */
 .pp-pick-check {
-  position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%;
-  display: none; place-items: center; background: var(--lime); color: #0e0e0f;
-  font-size: 13px; font-weight: 700; line-height: 1; box-shadow: var(--shadow-sm);
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 4px;
+  display: none; place-items: center; background: var(--hw-gold); color: var(--hw-night);
+  font-size: 12px; font-weight: 700; line-height: 1.5; letter-spacing: .08em; white-space: nowrap;
 }
 .pp-pick-btn[aria-pressed="true"] .pp-pick-check { display: grid; }
+.pp-pick-btn[aria-pressed="true"] .pp-pick-name { font-weight: 700; }
 .pp-pick-name {
   min-width: 0; font-size: 12px; font-weight: 500; line-height: 1.4; overflow-wrap: anywhere;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
@@ -760,17 +774,17 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
 .pp-tones { display: grid; gap: 8px; }
 .pp-tone {
   display: flex; align-items: center; gap: 12px; min-width: 0; min-height: 56px;
-  padding: 10px 14px; border-radius: 12px; cursor: pointer;
-  border: 1px solid var(--lc-border); background: #fff;
-  transition: border-color .2s var(--ease-out), background-color .2s var(--ease-out);
+  padding: 10px 14px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--hw-rule-parch); background: transparent;
+  transition: border-color .2s ease, box-shadow .2s ease;
 }
-.pp-tone input { flex-shrink: 0; width: 20px; height: 20px; margin: 0; accent-color: var(--lime-700); }
+.pp-tone input { flex-shrink: 0; width: 20px; height: 20px; margin: 0; accent-color: var(--hw-gold-deep); }
 .pp-tone-text { flex: 1; min-width: 0; display: grid; }
-.pp-tone-name { font-weight: 700; font-size: 15px; line-height: 1.45; color: var(--lc-fg); }
-.pp-tone-desc { font-size: 12px; color: var(--lc-fg-muted); line-height: 1.55; }
-.pp-tone:has(input:checked) { border-color: var(--lime); background: var(--lime-50); box-shadow: 0 0 0 1px var(--lime); }
+.pp-tone-name { font-family: var(--font-display); font-weight: 700; letter-spacing: .04em; font-size: 15px; line-height: 1.45; color: var(--hw-ink); }
+.pp-tone-desc { font-size: 12px; color: var(--hw-ink-dim); line-height: 1.55; }
+.pp-tone:has(input:checked) { border-color: var(--hw-gold-deep); box-shadow: inset 0 0 0 1px var(--hw-gold-deep); }
 
-.pp-print { width: 100%; font-size: 16px; min-height: 52px; }
+.pp-print { width: 100%; font-size: 16px; min-height: 52px; white-space: nowrap; }
 
 /* ---- 紙面 ---- */
 .pp-out { display: grid; gap: 14px; min-width: 0; scroll-margin-top: 64px; }
@@ -910,25 +924,24 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
   text-align: center; font-family: var(--font-jp); font-size: 12px; color: var(--pp-dim);
 }
 
-/* ---- 紙面の下（白い UI） ---- */
+/* ---- 紙面の下（濃紺の地） ---- */
 .pp-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; min-width: 0; }
 .pp-actions .btn { flex-shrink: 0; white-space: nowrap; min-height: 44px; }
 .pp-share {
-  margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--lc-muted);
-  font-size: 13px; line-height: 1.6; text-align: center; color: var(--lc-fg-muted); min-width: 0; overflow-wrap: anywhere;
+  margin: 0; padding: 10px 14px; border-radius: 6px; border: 1px solid var(--hw-rule);
+  font-size: 13px; line-height: 1.6; text-align: center; color: var(--hw-on-night-dim); min-width: 0; overflow-wrap: anywhere;
 }
 /* 画像にした紙面（長押しで保存） */
 .pp-shot { display: grid; gap: 10px; min-width: 0; margin: 0; }
 .pp-shot-guide {
-  margin: 0; padding: 10px 14px; border-radius: 12px; min-width: 0;
-  background: var(--lime-50); border: 1px solid var(--lime-100); color: var(--lime-900);
+  margin: 0; padding: 10px 14px; border-radius: 6px; min-width: 0;
+  background: transparent; border: 1px solid var(--hw-gold); color: var(--hw-gold);
   font-size: 14px; font-weight: 700; line-height: 1.6; text-align: center; overflow-wrap: anywhere;
 }
 .pp-shot-img {
   display: block; width: 100%; max-width: 100%; height: auto; border-radius: 4px;
-  border: 1px solid var(--lc-border);
+  border: 1px solid var(--hw-rule);
   -webkit-touch-callout: default; -webkit-user-select: auto; user-select: auto;
-  box-shadow: var(--shadow-md);
 }
 /* 書き出し中だけ：動きを止め、焼き込んだ写真にはフィルタを重ねない */
 .pp-snap .pp-frame img, .pp-snap .pp-frame video { animation: none !important; transform: none !important; }
@@ -1426,10 +1439,10 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
     }));
 
     els.form = h("form", { class: "pp-form", onsubmit: (e) => { e.preventDefault(); print(false); } },
-      h("div", null,
+      h("div", { class: "pp-form-head" },
         h("p", { class: "eyebrow" }, "Daily Prophet"),
         h("h2", { class: "pp-form-title h-display" }, "日刊予言者新聞 号外"),
-        h("p", { class: "pp-lead muted" }, "今日の出来事を、魔法界の新聞にします。どれも空のままで大丈夫。")),
+        h("p", { class: "pp-lead" }, "今日の出来事を、魔法界の新聞にします。どれも空のままで大丈夫。")),
       h("div", { class: "pp-field" },
         h("span", { class: "pp-label" }, "紙面の写真・動画"),
         els.pick,

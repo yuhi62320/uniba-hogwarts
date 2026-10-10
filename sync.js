@@ -177,27 +177,36 @@
 
   /* ---------- 画面: 同期の表示と合言葉 ---------- */
   const CSS = `
-.sy-pill { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 4px 12px;
-  border-radius: 9999px; border: 1px solid var(--lc-border); background: #fff; color: var(--lc-fg-2);
-  font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; box-shadow: var(--shadow-xs); }
-.sy-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--lc-border-strong); flex-shrink: 0; }
-.sy-pill[data-s="online"] .sy-dot { background: var(--lime); box-shadow: 0 0 0 3px var(--lime-100); }
-.sy-pill[data-s="offline"] .sy-dot { background: var(--danger); }
-.sy-pill[data-s="connecting"] .sy-dot { background: var(--lime-200); }
-.sy-back { position: fixed; inset: 0; z-index: 30; background: rgba(24,24,27,.4); display: grid; place-items: end center; padding: 0; }
+.sy-pill { flex-shrink: 0; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 4px 14px;
+  border-radius: 6px; border: 1px solid var(--hw-rule); background: transparent; color: var(--hw-on-night);
+  font-family: var(--font-body); font-size: 12px; font-weight: 700; letter-spacing: .04em; white-space: nowrap; cursor: pointer; }
+.sy-pill:focus-visible { outline: 2px solid var(--hw-gold); outline-offset: 2px; }
+.sy-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--hw-on-night-dim); flex-shrink: 0; }
+.sy-pill[data-s="online"] .sy-dot { background: var(--hw-gold); }
+.sy-pill[data-s="offline"] .sy-dot { background: var(--hw-crimson); }
+.sy-pill[data-s="connecting"] .sy-dot { background: transparent; border: 1px solid var(--hw-gold); }
+.sy-back { position: fixed; inset: 0; z-index: 30; background: color-mix(in srgb, var(--hw-night) 72%, transparent); display: grid; place-items: end center; padding: 0; }
 @media (min-width: 600px) { .sy-back { place-items: center; padding: 16px; } }
-.sy-card { width: 100%; max-width: 480px; display: grid; gap: 14px; background: #fff; color: var(--lc-fg);
-  border-radius: 24px 24px 0 0; padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px)); box-shadow: var(--shadow-lg); }
-@media (min-width: 600px) { .sy-card { border-radius: 24px; } }
-.sy-card h2 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -.015em; }
-.sy-card p { margin: 0; font-size: 14px; color: var(--lc-fg-2); }
-.sy-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.sy-input { flex: 1 1 160px; min-width: 0; min-height: 44px; padding: 8px 14px; border-radius: 12px;
-  border: 1px solid var(--lc-border-strong); background: #fff; color: var(--lc-fg); font: inherit; font-size: 16px; }
-.sy-input:focus { outline: none; border-color: var(--lime-700); box-shadow: 0 0 0 3px var(--lime-100); }
-.sy-link { display: block; min-width: 0; padding: 12px 14px; border-radius: 12px; background: var(--lc-muted); color: var(--lc-fg);
-  font-family: var(--font-mono); font-size: 12px; overflow-wrap: anywhere; user-select: all; -webkit-user-select: all; }
-.sy-note { font-size: 12px !important; color: var(--lc-fg-muted) !important; }
+.sy-card { width: 100%; max-width: 480px; min-width: 0; display: grid; gap: 14px; background: var(--hw-parch); color: var(--hw-ink);
+  border: 1px solid var(--hw-rule-parch); border-bottom: 0;
+  border-radius: 10px 10px 0 0; padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -2px 16px rgba(0, 0, 0, .3); }
+@media (min-width: 600px) { .sy-card { border-radius: 10px; border-bottom: 1px solid var(--hw-rule-parch); } }
+.sy-card .eyebrow { color: var(--hw-gold-deep); }
+.sy-card h2 { position: relative; margin: 0; min-width: 0; padding-bottom: 14px; border-bottom: 1px solid var(--hw-rule-parch);
+  font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: .04em; color: var(--hw-ink); }
+.sy-card h2::after { content: ""; position: absolute; left: 50%; bottom: -4px; width: 7px; height: 7px;
+  background: var(--hw-parch); border: 1px solid var(--hw-gold-deep); transform: translateX(-50%) rotate(45deg); }
+.sy-card p { margin: 0; min-width: 0; font-size: 14px; line-height: 1.7; color: var(--hw-ink); }
+.sy-card .btn { flex-shrink: 0; white-space: nowrap; min-height: 44px; }
+.sy-card .btn.ghost { color: var(--hw-gold-deep); border-color: var(--hw-gold-deep); background: transparent; }
+.sy-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-width: 0; }
+.sy-input { flex: 1 1 160px; min-width: 0; min-height: 44px; padding: 8px 14px; border-radius: 6px;
+  border: 1px solid var(--hw-rule-parch); background: transparent; color: var(--hw-ink); font: inherit; font-size: 16px; }
+.sy-input::placeholder { color: var(--hw-ink-dim); }
+.sy-input:focus { outline: none; border-color: var(--hw-gold-deep); box-shadow: 0 0 0 1px var(--hw-gold-deep); }
+.sy-link { display: block; min-width: 0; padding: 12px 14px; border-radius: 6px; border: 1px dashed var(--hw-rule-parch); color: var(--hw-ink);
+  font-family: var(--font-mono, monospace); font-size: 12px; overflow-wrap: anywhere; user-select: all; -webkit-user-select: all; }
+.sy-note { font-size: 12px !important; color: var(--hw-ink-dim) !important; }
 `;
   function css() { if (!document.getElementById("sy-style")) document.head.append(HP.h("style", { id: "sy-style" }, CSS)); }
 
@@ -241,7 +250,7 @@
       } }, "リンクをコピー");
       const link = HP.h("span", { class: "sy-link" }, url);
       card.append(
-        HP.h("span", { class: "eyebrow" }, "SYNC"), HP.h("h2", null, "4人で同期"),
+        HP.h("span", { class: "eyebrow" }, "Owl Link"), HP.h("h2", null, "4人で同期"),
         HP.h("p", null, "このリンクを LINE で3人に送ると、カード・ふくろう便・写真・新聞・飲みゲームのお題が全員のスマホで同じになります。"),
         link,
         HP.h("div", { class: "sy-row" }, copy,
@@ -252,7 +261,7 @@
     } else {
       const input = HP.h("input", { class: "sy-input", id: "sy-code", type: "text", placeholder: "合言葉（例 uniba-7k3q9m）", autocomplete: "off", autocapitalize: "off" });
       card.append(
-        HP.h("span", { class: "eyebrow" }, "START"), HP.h("h2", null, "4人で同期する"),
+        HP.h("span", { class: "eyebrow" }, "Begin the Journey"), HP.h("h2", null, "4人で同期する"),
         HP.h("p", null, "1人が「旅をはじめる」を押して、出てきたリンクを LINE で3人に送ってください。届いたリンクを開けば、同じ旅に入れます。"),
         HP.h("div", { class: "sy-row" }, HP.h("button", { type: "button", class: "btn", onclick: () => go(newRoom()) }, "旅をはじめる")),
         HP.h("p", { class: "sy-note" }, "合言葉を聞いた人はここに入力"),

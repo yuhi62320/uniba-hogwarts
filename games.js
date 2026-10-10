@@ -85,14 +85,14 @@
       drink: "一口ルール・一気はなし。1杯ごとに水も飲もう",
       soft: "新幹線ではソフドリで。声は控えめに",
     },
-    cheers: { drink: "全員で乾杯！🍻", soft: "全員でソフドリ乾杯！🥤" },
+    cheers: { drink: "全員で乾杯！", soft: "全員でソフドリ乾杯！" },
   };
 
   const GAMES = [
-    { id: "talk", ico: "🎰", title: "〇〇の話をしないといけない", sub: "トークルーレット・30秒しゃべり切れ", main: true },
-    { id: "ng", ico: "🤐", title: "NGワード", sub: "名前を言ってはいけないあの言葉" },
-    { id: "match", ico: "🙌", title: "せーので一致", sub: "1人だけズレたら罰" },
-    { id: "pick", ico: "🎯", title: "指名ルーレット", sub: "次に飲む人・乾杯の音頭を決める", wide: true },
+    { id: "talk", en: "GAME I", title: "〇〇の話をしないといけない", sub: "トークルーレット・30秒しゃべり切れ", main: true },
+    { id: "ng", en: "GAME II", title: "NGワード", sub: "名前を言ってはいけないあの言葉" },
+    { id: "match", en: "GAME III", title: "せーので一致", sub: "1人だけズレたら罰" },
+    { id: "pick", en: "GAME IV", title: "指名ルーレット", sub: "次に飲む人・乾杯の音頭を決める", wide: true },
   ];
 
   /* ---------- 状態 ---------- */
@@ -122,7 +122,7 @@
     }
     return out;
   }
-  function houseColor(house) { const x = HP.HOUSES && HP.HOUSES[house]; return x ? x.color : "var(--lime-700)"; }
+  function houseColor(house) { const x = HP.HOUSES && HP.HOUSES[house]; return x ? x.color : "var(--hw-gold-deep)"; }
 
   const rand = (n) => Math.floor(Math.random() * n);
   const pickOne = (arr) => arr[rand(arr.length)];
@@ -141,173 +141,168 @@
 .gm { display: grid; grid-template-columns: minmax(0,1fr); gap: 14px; min-width: 0; }
 .gm > *, .gm-p > * { min-width: 0; max-width: 100%; }
 .gm-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-.gm-title { margin: 0; min-width: 0; font-size: 24px; font-weight: 700; letter-spacing: -.015em; color: var(--lc-fg); line-height: 1.3; }
-.gm-lead { margin: 0; min-width: 0; font-size: 13px; color: var(--lc-fg-muted); }
+.gm-title { margin: 0; min-width: 0; font-family: var(--font-display); font-size: 24px; font-weight: 800; letter-spacing: .04em; color: var(--hw-on-night); line-height: 1.3; }
+.gm-lead { margin: 0; min-width: 0; font-size: 13px; color: var(--hw-on-night-dim); }
 .gm-mode { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 4px; padding: 4px;
-  border: 1px solid var(--lc-border); border-radius: 9999px; background: var(--lc-muted); }
-.gm-mode button { min-width: 0; min-height: 44px; border: 1px solid transparent; border-radius: 9999px; background: transparent;
-  color: var(--lc-fg-muted); font-weight: 700; font-size: 15px; white-space: nowrap; cursor: pointer;
+  border: 1px solid var(--hw-rule); border-radius: 6px; background: transparent; }
+.gm-mode button { min-width: 0; min-height: 44px; border: 1px solid transparent; border-radius: 4px; background: transparent;
+  color: var(--hw-on-night-dim); font-family: var(--font-display); font-weight: 700; font-size: 15px; letter-spacing: .04em; white-space: nowrap; cursor: pointer;
   overflow: hidden; text-overflow: ellipsis; padding: 0 8px; transition: background .2s var(--ease-out), color .2s var(--ease-out); }
-.gm-mode button[aria-pressed="true"] { background: var(--lime); border-color: var(--lime); color: var(--lc-fg); box-shadow: var(--shadow-xs); }
-.gm-pace { margin: -6px 0 0; font-size: 12px; color: var(--lc-fg-muted); text-align: center; line-height: 1.5; }
+.gm-mode button[aria-pressed="true"] { background: var(--hw-gold); border-color: var(--hw-gold); color: var(--hw-night); }
+.gm-pace { margin: -6px 0 0; font-size: 12px; color: var(--hw-on-night-dim); text-align: center; line-height: 1.5; }
 
-/* 一覧カード */
+/* 一覧カード（羊皮紙） */
 .gm-cards { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; }
-.gm-card { position: relative; min-width: 0; min-height: 44px; display: grid; gap: 6px; align-content: start; justify-items: start;
-  padding: 14px; text-align: left; cursor: pointer; border-radius: var(--radius);
-  background: var(--lc-surface); border: 1px solid var(--lc-border); color: var(--lc-fg); box-shadow: var(--shadow-sm);
+.gm-card { position: relative; min-width: 0; min-height: 44px; display: grid; gap: 8px; align-content: start; justify-items: start;
+  padding: 16px 14px; text-align: left; cursor: pointer; border-radius: 10px;
+  background: var(--hw-parch); border: 1px solid var(--hw-rule-parch); color: var(--hw-ink);
   transition: transform .2s var(--ease-out); }
 .gm-card > * { min-width: 0; max-width: 100%; }
 .gm-card.is-wide { grid-column: 1 / -1; }
 .gm-card:active { transform: scale(.98); }
-.gm-card.is-main { grid-column: 1 / -1; padding: 18px 16px; border-color: var(--lc-border-strong); }
-.gm-card-ico { flex-shrink: 0; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%;
-  background: var(--lime-100); font-size: 20px; line-height: 1; }
-.gm-card-t { font-weight: 700; font-size: 16px; line-height: 1.35; letter-spacing: -.015em; overflow-wrap: anywhere; }
-.gm-card.is-main .gm-card-t { font-size: 20px; }
-.gm-card-s { font-size: 12px; line-height: 1.5; color: var(--lc-fg-muted); }
-.gm-card.is-main .gm-card-s { font-size: 13px; }
-.gm-badge { position: absolute; top: 14px; right: 14px; flex-shrink: 0; white-space: nowrap; padding: 2px 10px;
-  border-radius: 9999px; font-size: 12px; font-weight: 700; background: var(--lime); color: var(--lc-fg); }
+.gm-card.is-main { grid-column: 1 / -1; padding: 20px 16px; border-color: var(--hw-gold); }
+.gm-card .eyebrow { color: var(--hw-gold-deep); white-space: nowrap; }
+.gm-card-t { font-family: var(--font-display); font-weight: 700; font-size: 16px; line-height: 1.45; letter-spacing: .04em; overflow-wrap: anywhere; }
+.gm-card.is-main .gm-card-t { font-size: 20px; font-weight: 800; }
 
 /* ゲーム画面の見出し */
 .gm-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.gm-bar .btn { min-height: 44px; padding: 8px 16px; }
-.gm-bar-t { flex: 1 1 0; min-width: 0; margin: 0; display: flex; align-items: center; gap: 8px;
-  font-size: 18px; font-weight: 700; letter-spacing: -.015em; line-height: 1.4; color: var(--lc-fg); }
-.gm-bar-t > span:last-child { min-width: 0; overflow-wrap: anywhere; }
-.gm-ico-s { flex-shrink: 0; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%;
-  background: var(--lime-100); font-size: 16px; line-height: 1; }
+.gm-bar .btn { flex-shrink: 0; white-space: nowrap; min-height: 44px; padding: 8px 16px; }
+.gm-bar-t { flex: 1 1 0; min-width: 0; margin: 0; font-family: var(--font-display);
+  font-size: 18px; font-weight: 700; letter-spacing: .04em; line-height: 1.4; color: var(--hw-on-night); overflow-wrap: anywhere; }
 
-.gm-p { display: grid; grid-template-columns: minmax(0,1fr); gap: 14px; min-width: 0; }
+.gm-p { display: grid; grid-template-columns: minmax(0,1fr); gap: 14px; min-width: 0; color: var(--hw-ink); }
 .gm-p .btn.big { width: 100%; min-height: 52px; font-size: 17px; }
-.gm-lbl { margin: 0 0 6px; font-size: 12px; font-weight: 700; color: var(--lc-fg-muted); letter-spacing: .04em; }
-.gm-note { margin: 0; font-size: 13px; color: var(--lc-fg-muted); line-height: 1.65; }
+.gm-lbl { margin: 0 0 6px; font-size: 12px; font-weight: 700; color: var(--hw-ink-dim); letter-spacing: .04em; }
+.gm-note { margin: 0; font-size: 13px; color: var(--hw-ink-dim); line-height: 1.65; }
 
 /* チップ */
 .gm-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.gm-chip { flex-shrink: 0; white-space: nowrap; min-height: 44px; padding: 6px 14px; border-radius: 9999px; cursor: pointer;
-  border: 1px solid var(--lc-border); background: var(--lc-muted); color: var(--lc-fg-muted); font-size: 14px; font-weight: 700;
+.gm-chip { flex-shrink: 0; white-space: nowrap; min-height: 44px; padding: 6px 14px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--hw-rule-parch); background: transparent; color: var(--hw-ink-dim); font-size: 14px; font-weight: 700;
   transition: background .2s var(--ease-out), color .2s var(--ease-out); }
-.gm-chip[aria-pressed="true"] { background: var(--lime-50); color: var(--lime-900); border-color: var(--lime); }
+.gm-chip[aria-pressed="true"] { background: var(--hw-gold); color: var(--hw-ink); border-color: var(--hw-gold-deep); }
 .gm-grid2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
 .gm-grid2 .gm-chip { min-width: 0; white-space: normal; line-height: 1.35; padding: 6px 10px; font-size: 13px; overflow-wrap: anywhere; }
-.gm-chip small { font-size: 12px; opacity: .75; margin-left: 4px; font-family: var(--font-latin); font-variant-numeric: tabular-nums; }
+.gm-chip small { font-size: 12px; opacity: .75; margin-left: 4px; font-family: var(--font-num); font-variant-numeric: tabular-nums; }
 
-/* スロット（白いカードの上の計器） */
-.gm-slot { --H: 96px; --bg: var(--lc-muted); position: relative; height: var(--H); overflow: hidden; border-radius: 12px; max-width: 100%;
-  background: var(--bg); color: var(--lc-fg); border: 1px solid var(--lc-border);
-  transition: border-color .2s var(--ease-out), background .2s var(--ease-out), box-shadow .2s var(--ease-out); }
+/* スロット */
+.gm-slot { --H: 96px; --bg: var(--hw-parch); position: relative; height: var(--H); overflow: hidden; border-radius: 10px; max-width: 100%;
+  background: var(--bg); color: var(--hw-ink); border: 1px solid var(--hw-rule-parch);
+  transition: border-color .2s var(--ease-out); }
 .gm-slot.sm { --H: 56px; }
 .gm-slot::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  background: linear-gradient(var(--lc-border-strong), var(--lc-border-strong)) left center / 4px 40% no-repeat,
-    linear-gradient(var(--lc-border-strong), var(--lc-border-strong)) right center / 4px 40% no-repeat; }
+  background: linear-gradient(var(--hw-rule-parch), var(--hw-rule-parch)) left center / 3px 40% no-repeat,
+    linear-gradient(var(--hw-rule-parch), var(--hw-rule-parch)) right center / 3px 40% no-repeat; }
 .gm-slot::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background: linear-gradient(var(--bg), transparent 26%, transparent 74%, var(--bg)); }
-.gm-slot.is-spin { border-color: var(--lc-border-strong); }
-.gm-slot.is-hit { --bg: var(--lime-50); border-color: var(--lime); box-shadow: 0 0 0 3px var(--lime-100); animation: gm-hit .36s var(--ease-out) 1; }
-.gm-slot.is-hit::before { background: linear-gradient(var(--lime), var(--lime)) left center / 4px 40% no-repeat,
-  linear-gradient(var(--lime), var(--lime)) right center / 4px 40% no-repeat; }
+.gm-slot.is-spin { border-color: var(--hw-gold-deep); }
+.gm-slot.is-hit { border-color: var(--hw-gold); box-shadow: inset 0 0 0 1px var(--hw-gold); animation: gm-hit .36s var(--ease-out) 1; }
+.gm-slot.is-hit::before { background: linear-gradient(var(--hw-gold), var(--hw-gold)) left center / 3px 40% no-repeat,
+  linear-gradient(var(--hw-gold), var(--hw-gold)) right center / 3px 40% no-repeat; }
 .gm-reel { will-change: transform; }
 .gm-item { height: var(--H); display: flex; align-items: center; justify-content: center; padding: 0 16px; text-align: center; }
 .gm-item > span { min-width: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-  font-weight: 700; font-size: 18px; line-height: 1.35; letter-spacing: -.015em; overflow-wrap: anywhere; }
+  font-family: var(--font-display); font-weight: 700; font-size: 18px; line-height: 1.4; letter-spacing: .04em; overflow-wrap: anywhere; }
 .gm-slot.sm .gm-item > span { font-size: 20px; -webkit-line-clamp: 1; }
-.gm-item.is-ph > span { color: var(--lc-fg-subtle); font-size: 16px; font-weight: 500; }
+.gm-item.is-ph > span { color: var(--hw-ink-dim); font-family: var(--font-body); font-size: 15px; font-weight: 500; }
 @keyframes gm-hit { 0% { transform: scale(1); } 40% { transform: scale(1.02); } 100% { transform: scale(1); } }
-.gm-catb { display: inline-block; flex-shrink: 0; white-space: nowrap; padding: 2px 10px; border-radius: 9999px; font-size: 12px;
-  font-weight: 700; background: var(--lime-50); border: 1px solid var(--lime-100); color: var(--lime-900); }
+.gm-catb { display: inline-block; flex-shrink: 0; white-space: nowrap; padding: 2px 10px; border-radius: 4px; font-size: 12px;
+  font-weight: 700; background: transparent; border: 1px solid var(--hw-gold-deep); color: var(--hw-gold-deep); }
 
 /* タイマー */
 .gm-timer { display: flex; align-items: center; gap: 14px; }
 .gm-ring { --p: 1; flex-shrink: 0; width: 80px; height: 80px; max-width: 100%; border-radius: 50%; display: grid; place-items: center;
-  background: conic-gradient(var(--lime) calc(var(--p) * 360deg), var(--lc-muted) 0); position: relative; }
-.gm-ring::before { content: ""; position: absolute; inset: 6px; border-radius: 50%; background: var(--lc-surface); box-shadow: inset 0 0 0 1px var(--lc-border); }
-.gm-ring b { position: relative; white-space: nowrap; font-family: var(--font-latin); font-weight: 700; font-size: 28px; line-height: 1;
-  letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: var(--lc-fg); }
-.gm-ring.is-hurry { background: conic-gradient(var(--danger) calc(var(--p) * 360deg), var(--lc-muted) 0); animation: gm-beat .5s ease-in-out infinite alternate; }
-.gm-ring.is-hurry b { color: var(--danger); }
+  background: conic-gradient(var(--hw-gold) calc(var(--p) * 360deg), var(--hw-rule-parch) 0); position: relative; }
+.gm-ring::before { content: ""; position: absolute; inset: 5px; border-radius: 50%; background: var(--hw-parch); }
+.gm-ring b { position: relative; white-space: nowrap; font-family: var(--font-num); font-weight: 700; font-size: 28px; line-height: 1;
+  font-variant-numeric: tabular-nums; color: var(--hw-ink); }
+.gm-ring.is-hurry { background: conic-gradient(var(--hw-crimson) calc(var(--p) * 360deg), var(--hw-rule-parch) 0); animation: gm-beat .5s ease-in-out infinite alternate; }
+.gm-ring.is-hurry b { color: var(--hw-crimson); }
 @keyframes gm-beat { to { transform: scale(1.05); } }
 .gm-tside { flex: 1 1 0; min-width: 0; display: grid; gap: 8px; }
-.gm-tmsg { margin: 0; min-width: 0; font-weight: 700; line-height: 1.5; color: var(--lc-fg); }
+.gm-tmsg { margin: 0; min-width: 0; font-weight: 700; line-height: 1.5; color: var(--hw-ink); }
 .gm-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.gm-btns .btn { flex-shrink: 0; white-space: nowrap; }
 
 /* 罰・成功 */
-.gm-pen { display: grid; gap: 6px; padding: 14px 16px; border-radius: 12px; background: var(--lc-muted); color: var(--lc-fg);
-  border: 1px solid var(--lc-border); animation: gm-drop .32s var(--ease-out) 1; }
-.gm-pen-lead { margin: 0; min-width: 0; font-size: 13px; font-weight: 700; color: var(--danger); }
-.gm-pen-t { margin: 0; min-width: 0; font-weight: 700; font-size: 20px; line-height: 1.4; letter-spacing: -.015em; color: var(--lc-fg); overflow-wrap: anywhere; }
+.gm-pen { display: grid; gap: 6px; padding: 14px 16px; border-radius: 10px; background: transparent; color: var(--hw-ink);
+  border: 1px solid var(--hw-crimson); border-left-width: 4px; animation: gm-drop .32s var(--ease-out) 1; }
+.gm-pen-lead { margin: 0; min-width: 0; font-size: 13px; font-weight: 700; color: var(--hw-crimson); }
+.gm-pen-t { margin: 0; min-width: 0; font-family: var(--font-display); font-weight: 700; font-size: 20px; line-height: 1.45; letter-spacing: .04em; color: var(--hw-ink); overflow-wrap: anywhere; }
 .gm-pen .btn.ghost { justify-self: start; }
-.gm-pen.is-good { background: var(--lime-50); border-color: var(--lime-100); }
-.gm-pen.is-good .gm-pen-lead { color: var(--lime-700); }
-.gm-pen.is-good .gm-pen-t { color: var(--lime-900); }
+.gm-pen.is-good { border-color: var(--hw-gold); }
+.gm-pen.is-good .gm-pen-lead { color: var(--hw-gold-deep); }
+.gm-pen.is-good .gm-pen-t { color: var(--hw-ink); }
 @keyframes gm-drop { from { transform: translateY(-6px); opacity: 0; } to { transform: none; opacity: 1; } }
 
 /* NG ワード */
-.gm-cover { display: grid; gap: 10px; justify-items: center; text-align: center; padding: 20px 12px; border-radius: var(--radius);
-  border: 1px dashed var(--lc-border-strong); background: var(--lc-surface); }
-.gm-cover-ico { flex-shrink: 0; width: 56px; height: 56px; display: grid; place-items: center; border-radius: 50%;
-  background: var(--lime-100); font-size: 28px; line-height: 1; }
-.gm-cover-t { margin: 0; min-width: 0; max-width: 100%; font-weight: 700; font-size: 20px; line-height: 1.4; letter-spacing: -.015em; overflow-wrap: anywhere; }
+.gm-cover { display: grid; gap: 10px; justify-items: center; text-align: center; padding: 24px 12px; border-radius: 10px;
+  border: 1px solid var(--hw-rule-parch); background: transparent; }
+.gm-cover .eyebrow { color: var(--hw-gold-deep); }
+.gm-cover-t { margin: 0; min-width: 0; max-width: 100%; font-family: var(--font-display); font-weight: 700; font-size: 20px; line-height: 1.45; letter-spacing: .04em; overflow-wrap: anywhere; }
 .gm-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.gm-row { display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 6px 6px 6px 14px; border-radius: 12px;
-  background: var(--lc-surface); border: 1px solid var(--lc-border); }
+.gm-row { display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 6px 6px 6px 14px; border-radius: 8px;
+  background: transparent; border: 1px solid var(--hw-rule-parch); border-left: 3px solid var(--c, var(--hw-gold-deep)); }
 .gm-row-n { flex: 1 1 0; min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gm-word { flex-shrink: 0; white-space: nowrap; max-width: 60%; overflow: hidden; text-overflow: ellipsis; padding: 4px 12px;
-  border-radius: 9999px; background: var(--lime-50); border: 1px solid var(--lime-100); color: var(--lime-900); font-weight: 700; font-size: 17px; }
-.gm-word.is-secret { background: var(--lc-muted); color: var(--lc-fg-muted); border: 1px dashed var(--lc-border-strong); font-size: 14px; }
-.gm-outs { flex-shrink: 0; white-space: nowrap; font-size: 13px; font-weight: 700; color: var(--lc-fg-muted);
-  font-family: var(--font-latin); font-variant-numeric: tabular-nums; }
-.gm-row .btn { flex-shrink: 0; min-height: 44px; padding: 6px 14px; }
-.gm-steps { display: flex; gap: 6px; justify-content: center; }
-.gm-dot { flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: var(--lc-border-strong); }
-.gm-dot.is-on { background: var(--lime); }
+  border-radius: 4px; background: transparent; border: 1px solid var(--hw-gold-deep); color: var(--hw-ink); font-family: var(--font-display); font-weight: 700; font-size: 17px; }
+.gm-word.is-secret { color: var(--hw-ink-dim); border: 1px dashed var(--hw-rule-parch); font-family: var(--font-body); font-size: 14px; }
+.gm-outs { flex-shrink: 0; white-space: nowrap; font-size: 13px; font-weight: 700; color: var(--hw-ink-dim);
+  font-variant-numeric: tabular-nums; }
+.gm-outs b { font-family: var(--font-num); color: var(--hw-crimson); }
+.gm-row .btn { flex-shrink: 0; white-space: nowrap; min-height: 44px; padding: 6px 14px; }
+.gm-steps { display: flex; gap: 8px; justify-content: center; }
+.gm-dot { flex-shrink: 0; width: 8px; height: 8px; transform: rotate(45deg); background: var(--hw-rule-parch); }
+.gm-dot.is-on { background: var(--hw-gold); }
 
 /* せーので一致 */
-.gm-topic { margin: 0; min-width: 0; text-align: center; font-weight: 700; font-size: 24px; letter-spacing: -.015em;
-  line-height: 1.4; text-wrap: balance; overflow-wrap: anywhere; padding: 10px 4px; color: var(--lc-fg); }
+.gm-topic { margin: 0; min-width: 0; text-align: center; font-family: var(--font-display); font-weight: 800; font-size: 24px; letter-spacing: .04em;
+  line-height: 1.45; text-wrap: balance; overflow-wrap: anywhere; padding: 10px 4px; color: var(--hw-ink); }
 .gm-count { display: grid; place-items: center; height: 96px; }
-.gm-count b { font-family: var(--font-jp); font-weight: 700; font-size: 56px; line-height: 1; color: var(--lc-fg); white-space: nowrap;
+.gm-count b { font-family: var(--font-display); font-weight: 800; font-size: 56px; line-height: 1; color: var(--hw-gold-deep); white-space: nowrap;
   font-variant-numeric: tabular-nums; animation: gm-pop .32s var(--ease-out) 1; }
 @keyframes gm-pop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .gm-who { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 8px; }
-.gm-who .btn { min-width: 0; width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.gm-who .btn { min-width: 0; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* 指名ルーレット（計器のマス） */
+/* 指名ルーレット */
 .gm-wheel { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 8px; padding: 8px;
-  border-radius: var(--radius); background: var(--lc-muted); border: 1px solid var(--lc-border); }
+  border-radius: 10px; background: transparent; border: 1px solid var(--hw-rule-parch); }
 .gm-tile { min-width: 0; min-height: 88px; display: grid; place-items: center; align-content: center; gap: 6px; padding: 10px 6px;
-  border-radius: 12px; text-align: center; background: var(--lc-surface); color: var(--lc-fg); border: 1px solid var(--lc-border);
-  box-shadow: var(--shadow-xs);
+  border-radius: 8px; text-align: center; background: transparent; color: var(--hw-ink); border: 1px solid var(--hw-rule-parch);
   transition: transform .12s var(--ease-out), background .12s var(--ease-out), border-color .12s var(--ease-out); }
-.gm-tile-n { min-width: 0; max-width: 100%; font-weight: 700; font-size: 17px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.gm-tile .house-chip { display: block; max-width: 100%; padding: 2px 8px; overflow: hidden; text-overflow: ellipsis; }
-.gm-tile.is-lit { border-color: var(--lime); background: var(--lime-50); box-shadow: 0 0 0 2px var(--lime-100); transform: scale(1.02); }
-.gm-tile.is-win { border-color: var(--lime); background: var(--lime); box-shadow: 0 0 0 3px var(--lime-100), var(--shadow-md);
+.gm-tile-n { min-width: 0; max-width: 100%; font-family: var(--font-display); font-weight: 700; font-size: 17px; line-height: 1.3; letter-spacing: .04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gm-tile .house-chip { display: block; max-width: 100%; padding: 2px 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gm-tile.is-lit { border-color: var(--hw-gold); box-shadow: inset 0 0 0 1px var(--hw-gold); transform: scale(1.02); }
+.gm-tile.is-win { border-color: var(--hw-gold-deep); background: var(--hw-gold); color: var(--hw-ink);
   animation: gm-win .36s var(--ease-out) 1 both; }
 @keyframes gm-win { from { transform: scale(1); } 50% { transform: scale(1.05); } to { transform: scale(1.02); } }
-.gm-result { margin: 0; min-width: 0; text-align: center; font-weight: 700; font-size: 20px; line-height: 1.5; letter-spacing: -.015em; overflow-wrap: anywhere; }
+.gm-result { margin: 0; min-width: 0; text-align: center; font-family: var(--font-display); font-weight: 700; font-size: 20px; line-height: 1.5; letter-spacing: .04em; color: var(--hw-ink); overflow-wrap: anywhere; }
 
-/* 自分たちで追加 */
-.gm-custom { border: 1px solid var(--lc-border); border-radius: var(--radius); background: var(--lc-surface); box-shadow: var(--shadow-sm); }
+/* 自分たちで追加（羊皮紙） */
+.gm-custom { border: 1px solid var(--hw-rule-parch); border-radius: 10px; background: var(--hw-parch); color: var(--hw-ink); }
 .gm-custom > summary { list-style: none; display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 8px 16px;
-  cursor: pointer; color: var(--lc-fg); font-weight: 700; }
+  cursor: pointer; color: var(--hw-ink); font-family: var(--font-display); font-weight: 700; letter-spacing: .04em; }
 .gm-custom > summary::-webkit-details-marker { display: none; }
 .gm-custom > summary span { min-width: 0; }
-.gm-custom > summary::after { content: "▾"; margin-left: auto; flex-shrink: 0; color: var(--lc-fg-muted); transition: transform .2s var(--ease-out); }
-.gm-custom[open] > summary::after { transform: rotate(180deg); }
+.gm-custom > summary::after { content: ""; margin-left: auto; flex-shrink: 0; width: 8px; height: 8px;
+  border-right: 1.5px solid var(--hw-gold-deep); border-bottom: 1.5px solid var(--hw-gold-deep);
+  transform: translateY(-2px) rotate(45deg); transition: transform .2s var(--ease-out); }
+.gm-custom[open] > summary::after { transform: translateY(2px) rotate(-135deg); }
 .gm-cbody { display: grid; grid-template-columns: minmax(0,1fr); gap: 10px; padding: 0 16px 16px; }
 .gm-add { display: flex; gap: 8px; }
-.gm-input { flex: 1 1 0; min-width: 0; max-width: 100%; min-height: 44px; padding: 8px 14px; border-radius: 12px;
-  border: 1px solid var(--lc-border-strong); background: var(--lc-surface); color: var(--lc-fg); font: inherit; font-size: 16px; }
-.gm-input:focus { outline: none; border-color: var(--lime); box-shadow: 0 0 0 3px var(--lime-100); }
-.gm-input::placeholder { color: var(--lc-fg-subtle); }
+.gm-add .btn { flex-shrink: 0; white-space: nowrap; }
+.gm-input { flex: 1 1 0; min-width: 0; max-width: 100%; min-height: 44px; padding: 8px 14px; border-radius: 6px;
+  border: 1px solid var(--hw-rule-parch); background: transparent; color: var(--hw-ink); font: inherit; font-size: 16px; }
+.gm-input:focus { outline: none; border-color: var(--hw-gold-deep); box-shadow: 0 0 0 1px var(--hw-gold-deep); }
+.gm-input::placeholder { color: var(--hw-ink-dim); }
 .gm-clist { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.gm-citem { display: flex; align-items: center; gap: 8px; padding: 4px 4px 4px 12px; border-radius: 12px; background: var(--lc-muted); }
+.gm-citem { display: flex; align-items: center; gap: 8px; padding: 4px 4px 4px 12px; border-radius: 6px; border: 1px solid var(--hw-rule-parch); }
 .gm-ctext { flex: 1 1 0; min-width: 0; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
-.gm-del { flex-shrink: 0; white-space: nowrap; min-height: 44px; min-width: 56px; padding: 0 12px; border-radius: 9999px;
-  border: 1px solid var(--lc-border-strong); background: var(--lc-surface); color: var(--danger); font-size: 13px; font-weight: 700; cursor: pointer; }
-.gm-empty { font-size: 13px; color: var(--lc-fg-muted); }
+.gm-del { flex-shrink: 0; white-space: nowrap; min-height: 44px; min-width: 56px; padding: 0 12px; border-radius: 6px;
+  border: 1px solid var(--hw-crimson); background: transparent; color: var(--hw-crimson); font-size: 13px; font-weight: 700; cursor: pointer; }
+.gm-empty { font-size: 13px; color: var(--hw-ink-dim); }
 
 @media (prefers-reduced-motion: reduce) {
   .gm-slot.is-spin, .gm-slot.is-hit, .gm-ring.is-hurry, .gm-tile.is-win, .gm-pen, .gm-count b { animation: none !important; }
@@ -347,7 +342,7 @@
     const input = h("input", { type: "text", class: "gm-input", maxlength: "60", placeholder, enterkeyhint: "done", "aria-label": "追加するお題" });
     const ul = h("ul", { class: "gm-clist" });
     function draw() {
-      sumText.textContent = "＋お題を追加（" + list().length + "）";
+      sumText.textContent = "お題を追加（" + list().length + "）";
       if (!list().length) { ul.replaceChildren(h("li", { class: "gm-empty" }, "まだありません。追加したお題はこのスマホに保存されます")); return; }
       ul.replaceChildren(...list().map((t, i) => h("li", { class: "gm-citem" },
         h("span", { class: "gm-ctext" }, t),
@@ -422,14 +417,14 @@
     drawChips();
 
     const tSlot = h("div", { class: "gm-slot", "aria-live": "polite" });
-    const tReel = h("div", { class: "gm-reel" }, h("div", { class: "gm-item is-ph" }, h("span", null, "？ お題はなにかな ？")));
+    const tReel = h("div", { class: "gm-reel" }, h("div", { class: "gm-item is-ph" }, h("span", null, "お題はなにかな")));
     tSlot.append(tReel);
     const pSlot = h("div", { class: "gm-slot sm", "aria-live": "polite" });
-    const pReel = h("div", { class: "gm-reel" }, h("div", { class: "gm-item is-ph" }, h("span", null, "？")));
+    const pReel = h("div", { class: "gm-reel" }, h("div", { class: "gm-item is-ph" }, h("span", null, "だれかな")));
     pSlot.append(pReel);
     const catLine = h("div", { style: { minHeight: "20px" } });
 
-    const spinBtn = h("button", { type: "button", class: "btn big" }, "🎰 回す！");
+    const spinBtn = h("button", { type: "button", class: "btn big" }, "回す");
     const ring = h("div", { class: "gm-ring", "aria-hidden": "true" }, h("b", null, "30"));
     const tmsg = h("p", { class: "gm-tmsg" }, "回すとお題と話す人が決まります");
     const tbtns = h("div", { class: "gm-btns" });
@@ -468,7 +463,7 @@
             buzz([60, 40, 60]);
             tbtns.replaceChildren(h("button", { type: "button", class: "btn", onclick: spin }, "次へ回す"));
             tmsg.textContent = "セーフ！";
-            resultEl.replaceChildren(goodBox(who.name + " さん、30秒話し切った！", "拍手〜！👏 次の人へ"));
+            resultEl.replaceChildren(goodBox(who.name + " さん、30秒話し切った！", "拍手！次の人へ"));
           }
         }, 200);
       }
@@ -492,7 +487,7 @@
       catLine.replaceChildren();
       phase("spinning");
       let n = 0;
-      const fin = () => { if (++n < 2) return; spinBtn.disabled = false; spinBtn.textContent = "🎰 もう一回"; phase("ready"); };
+      const fin = () => { if (++n < 2) return; spinBtn.disabled = false; spinBtn.textContent = "もう一回"; phase("ready"); };
       spinReel(tSlot, tReel, pool.map((x) => x.t), final.t, 96, 2300, () => {
         catLine.replaceChildren(h("span", { class: "gm-catb" }, final.c.jp));
         fin();
@@ -539,14 +534,14 @@
       if (ng.phase === "idle") {
         wrap.append(
           h("p", { class: "gm-note" }, "1人ずつにNGワードを配ります。スマホを回して、自分以外の人のワードだけを見ます。自分のワードは最後まで秘密。会話の中で言ってしまったら罰！"),
-          h("button", { type: "button", class: "btn big", onclick: deal }, "🤐 NGワードを配る"));
+          h("button", { type: "button", class: "btn big", onclick: deal }, "NGワードを配る"));
         return;
       }
       if (ng.phase === "pass") {
         const p = ps[ng.step];
         const dots = h("div", { class: "gm-steps", "aria-hidden": "true" }, ps.map((_, i) => h("span", { class: "gm-dot" + (i <= ng.step ? " is-on" : "") })));
         const cover = h("div", { class: "gm-cover" },
-          h("div", { class: "gm-cover-ico", "aria-hidden": "true" }, "📱"),
+          h("span", { class: "eyebrow" }, "PASS THE PHONE"),
           h("p", { class: "gm-cover-t" }, p.name + " さんに渡してね"),
           h("p", { class: "gm-note" }, "ほかの人の画面はのぞかないで"),
           h("button", { type: "button", class: "btn", onclick: () => reveal() }, p.name + " さん、見る"));
@@ -554,7 +549,7 @@
         function reveal() {
           const rows = h("ul", { class: "gm-rows" }, ps.map((q) => h("li", { class: "gm-row", style: { "--c": houseColor(q.house) } },
             h("span", { class: "gm-row-n" }, q.id === p.id ? q.name + "（あなた）" : q.name),
-            q.id === p.id ? h("span", { class: "gm-word is-secret" }, "🤫 ひみつ") : h("span", { class: "gm-word" }, wordOf(q)))));
+            q.id === p.id ? h("span", { class: "gm-word is-secret" }, "ひみつ") : h("span", { class: "gm-word" }, wordOf(q)))));
           const next = ng.step + 1 >= ps.length;
           cover.replaceWith(h("div", { class: "gm-p", style: { gap: "10px" } },
             h("p", { class: "gm-lbl" }, "みんなのNGワード（" + p.name + " さんだけ見てね）"),
@@ -570,7 +565,7 @@
       const res = h("div", null);
       const rows = h("ul", { class: "gm-rows" }, ps.map((p) => h("li", { class: "gm-row", style: { "--c": houseColor(p.house) } },
         h("span", { class: "gm-row-n" }, p.name),
-        h("span", { class: "gm-outs" }, "×" + (ng.outs[p.id] || 0)),
+        h("span", { class: "gm-outs" }, "アウト ", h("b", null, String(ng.outs[p.id] || 0))),
         h("button", { type: "button", class: "btn", onclick: () => said(p, res) }, "言った！"))));
       wrap.append(
         h("p", { class: "gm-note" }, "普通におしゃべりしよう。だれかがNGワードを言ったら、気づいた人がその人の「言った！」を押してね。"),
@@ -618,7 +613,7 @@
     function draw() {
       stopAll();
       const stage = h("div", null);
-      const goBtn = h("button", { type: "button", class: "btn big", onclick: () => countdown(stage, goBtn) }, "🙌 せーの！");
+      const goBtn = h("button", { type: "button", class: "btn big", onclick: () => countdown(stage, goBtn) }, "せーの！");
       wrap.replaceChildren(
         h("p", { class: "gm-lbl", style: { textAlign: "center", margin: 0 } }, "お題"),
         h("p", { class: "gm-topic" }, topic),
@@ -648,7 +643,7 @@
         res));
       function after() {
         goBtn.disabled = false;
-        goBtn.textContent = "🙌 もう一回（同じお題）";
+        goBtn.textContent = "もう一回（同じお題）";
         if (!res.querySelector(".gm-next")) res.append(h("button", { type: "button", class: "btn gm-next", style: { marginTop: "10px", width: "100%" }, onclick: next }, "次のお題へ"));
       }
       function pickOdd(r) {
@@ -679,7 +674,7 @@
       h("span", { class: "gm-tile-n" }, p.name), p.house ? HP.houseChip(p.house) : null));
     const wheel = h("div", { class: "gm-wheel" }, tiles);
     const result = h("p", { class: "gm-result", "aria-live": "polite" }, "");
-    const btn = h("button", { type: "button", class: "btn big" }, "🎯 ルーレットを回す");
+    const btn = h("button", { type: "button", class: "btn big" }, "ルーレットを回す");
     btn.addEventListener("click", () => {
       stopAll();
       btn.disabled = true;
@@ -690,7 +685,7 @@
         tiles.forEach((t) => t.classList.remove("is-lit"));
         tiles[win].classList.add("is-win");
         result.textContent = "「" + purpose + "」は " + ps[win].name + " さん！";
-        btn.disabled = false; btn.textContent = "🎯 もう一回";
+        btn.disabled = false; btn.textContent = "もう一回";
         buzz([40, 30, 80]);
       };
       if (RM()) { finish(); return; }
@@ -718,10 +713,8 @@
     return h("div", { class: "gm-cards" }, GAMES.map((gm) => h("button", {
       type: "button", class: "gm-card" + (gm.main ? " is-main" : "") + (gm.wide ? " is-wide" : ""), onclick: () => open(gm.id),
     },
-    h("span", { class: "gm-card-ico", "aria-hidden": "true" }, gm.ico),
-    gm.main ? h("span", { class: "gm-badge" }, "メイン") : null,
-    h("span", { class: "gm-card-t" }, gm.title),
-    h("span", { class: "gm-card-s" }, gm.sub))));
+    h("span", { class: "eyebrow" }, gm.en),
+    h("span", { class: "gm-card-t" }, gm.title))));
   }
 
   function gameView(id) {
@@ -729,8 +722,8 @@
     const v = ({ talk: talkView, ng: ngView, match: matchView, pick: pickView })[id]();
     return h("div", { class: "gm" },
       h("div", { class: "gm-bar" },
-        h("button", { type: "button", class: "btn ghost", onclick: () => open(null) }, "← 一覧"),
-        h("h3", { class: "gm-bar-t h-display" }, h("span", { class: "gm-ico-s", "aria-hidden": "true" }, gm.ico), h("span", null, gm.title))),
+        h("button", { type: "button", class: "btn ghost", onclick: () => open(null) }, "一覧へ戻る"),
+        h("h3", { class: "gm-bar-t h-display" }, gm.title)),
       h("section", { class: "parchment" }, v.el),
       v.extra);
   }
@@ -756,10 +749,10 @@
         rootEl.querySelectorAll("[data-pen]").forEach((el) => { el.textContent = penText(); });
         rootEl.querySelectorAll("[data-mt]").forEach((el) => { el.textContent = MT[el.dataset.mt][m]; });
       }
-      HP.toast(m === "drink" ? "🍺 飲みモード：罰は「一口」" : "🥤 ソフドリモード：罰は写真やモノマネ");
+      HP.toast(m === "drink" ? "飲みモード：罰は「一口」" : "ソフドリモード：罰は写真やモノマネ");
     }
-    btns.drink = h("button", { type: "button", "aria-pressed": String(mode() === "drink"), onclick: () => set("drink") }, "🍺 飲み");
-    btns.soft = h("button", { type: "button", "aria-pressed": String(mode() === "soft"), onclick: () => set("soft") }, "🥤 ソフドリ");
+    btns.drink = h("button", { type: "button", "aria-pressed": String(mode() === "drink"), onclick: () => set("drink") }, "飲み");
+    btns.soft = h("button", { type: "button", "aria-pressed": String(mode() === "soft"), onclick: () => set("soft") }, "ソフドリ");
     return [h("div", { class: "gm-mode", role: "group", "aria-label": "飲みモード／ソフドリモード" }, btns.drink, btns.soft), pace];
   }
 
