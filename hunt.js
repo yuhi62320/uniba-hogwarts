@@ -740,6 +740,33 @@ textarea.hn-input { min-height: 72px; resize: vertical; line-height: 1.5; }
 .hn-del { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--hw-rule-parch); }
 .hn-del > .btn { color: var(--hw-crimson); border-color: var(--hw-crimson); }
 
+
+/* 蛙チョコカードの絵（cardart.js の Canvas）。5:7。角は Canvas の角丸に合わせる */
+.hn-ca { position: relative; display: block; width: 100%; min-width: 0; aspect-ratio: 5 / 7; }
+.hn-ca > .hn-cd { height: 100%; }
+.hn-ca-img, .hn-ca-cv { display: block; width: 100%; height: 100%; border-radius: 4.6% / 3.3%; box-shadow: ${SH}; }
+.hn-ca-big .hn-ca-cv { box-shadow: var(--hw-shadow); }
+.hn-flip > .hn-ca { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.hn-sheet-card.hn-sheet-art { width: 100%; max-width: 360px; }
+.hn-ca-shine { position: absolute; inset: 0; overflow: hidden; border-radius: 4.6% / 3.3%; pointer-events: none; mix-blend-mode: screen; }
+.hn-ca-shine::before { content: ""; position: absolute; top: -25%; bottom: -25%; left: -70%; width: 34%; transform: skewX(-20deg);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--hw-on-night) 55%, transparent) 50%, transparent);
+  animation: hn-shine 4.2s var(--ease-out) infinite; }
+.hn-ca-shine::after { content: ""; position: absolute; top: -25%; bottom: -25%; left: -70%; width: 8%; transform: skewX(-20deg);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--hw-gold) 60%, transparent) 50%, transparent);
+  animation: hn-shine 4.2s var(--ease-out) .35s infinite; }
+@keyframes hn-shine { 0% { left: -70%; } 55%, 100% { left: 140%; } }
+.hn-ca-acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 14px; }
+.hn-ca-acts > .btn { flex-shrink: 0; white-space: nowrap; }
+.hn-bulk { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 16px;
+  background: color-mix(in srgb, var(--hw-night) 82%, transparent); }
+.hn-bulk-in { width: 100%; max-width: 380px; min-width: 0; padding: 20px 18px; border-radius: 10px; border: 1px solid var(--hw-gold);
+  background: var(--hw-parch); color: var(--hw-ink); box-shadow: var(--hw-shadow); }
+.hn-bulk-in h2 { margin: 2px 0 8px; font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: .04em; }
+.hn-bulk-in p { margin: 0 0 6px; font-size: 14px; line-height: 1.7; color: var(--hw-ink-dim); }
+.hn-bulk-in .hn-bulk-now { color: var(--hw-ink); font-weight: 700; min-width: 0; }
+.hn-bulk-in .btn { white-space: normal; }
+@media (prefers-reduced-motion: reduce) { .hn-ca-shine { display: none; } }
 @media (prefers-reduced-motion: reduce) {
   .hn-env-flap, .hn-seal { display: none; }
   .hn-flip > .hn-cd-rear { display: none; }
@@ -810,7 +837,7 @@ textarea.hn-input { min-height: 72px; resize: vertical; line-height: 1.5; }
   const cardFace = (c, big) => (c.done ? cardFront(c, big) : cardBack(c, big));
   /* 表に返る演出つきのカード（rotateY。動きを減らす設定ならフェード）。delay は ms */
   function flipCard(c, big, delay) {
-    const front = cardFront(c, big);
+    const front = useArt(c) ? artBig(c) : cardFront(c, big);
     const inner = h("div", { class: "hn-flip" }, front, cardBack(c, big, "hn-cd-rear"));
     const wrap = h("div", { class: "hn-flip3d" }, inner);
     G.requestAnimationFrame(() => {
@@ -819,6 +846,128 @@ textarea.hn-input { min-height: 72px; resize: vertical; line-height: 1.5; }
       else inner.animate([{ transform: "rotateY(180deg)" }, { transform: "rotateY(0deg)" }], { duration: 560, delay: delay || 0, easing: EASE_OUT, fill: "backwards" });
     });
     return wrap;
+  }
+
+
+  /* ---------- 蛙チョコカードの絵（cardart.js）。無ければ今の CSS のカードのまま ---------- */
+  const CA = () => G.HP_CARDART || null;
+  const artKey = (c) => { const s = CA() && CA().sourceOf(c); return (s ? s.kind + ":" + s.url : "none") + "|" + c.name + "|" + c.rar; };
+  const thumbCache = new Map();   // artKey → dataURL（一覧の縮小版）
+  const thumbWait = new Map();    // artKey → Promise
+  const bigCache = new Map();     // artKey → canvas（詳細シート用。直近の数枚だけ）
+  let artQueue = Promise.resolve();
+  const queued = (fn) => { const p = artQueue.then(fn, fn); artQueue = p.catch(() => {}); return p; };
+  function thumbOf(c, key) {
+    if (thumbWait.has(key)) return thumbWait.get(key);
+    const p = queued(() => CA().render(c, { width: 360 })).then((cv) => {
+      const url = cv.toDataURL("image/jpeg", 0.86);
+      thumbCache.set(key, url);
+      return url;
+    }).catch(() => null).finally(() => thumbWait.delete(key));
+    thumbWait.set(key, p);
+    return p;
+  }
+  function bigOf(c, key) {
+    if (bigCache.has(key)) return Promise.resolve(bigCache.get(key));
+    return CA().render(c, { width: 750 }).then((cv) => {
+      cv.className = "hn-ca-cv";
+      cv.setAttribute("role", "img");
+      bigCache.set(key, cv);
+      if (bigCache.size > 4) bigCache.delete(bigCache.keys().next().value);
+      return cv;
+    });
+  }
+  let artIO = null;
+  function putThumb(el, url) { el.replaceChildren(h("img", { class: "hn-ca-img", src: url, alt: "", decoding: "async" })); }
+  function loadThumb(el) {
+    const a = el._art; if (!a) return;
+    thumbOf(a.c, a.key).then((url) => { if (url) putThumb(el, url); });
+  }
+  /* 一覧のタイル。見えたものから描く */
+  function artTile(c) {
+    const el = h("div", { class: "hn-ca", "data-rar": c.rar }, cardFront(c, false));
+    if (!CA()) return el;
+    const key = artKey(c);
+    if (thumbCache.has(key)) { putThumb(el, thumbCache.get(key)); return el; }
+    el._art = { c, key };
+    if (!("IntersectionObserver" in G)) { loadThumb(el); return el; }
+    if (!artIO) artIO = new G.IntersectionObserver((ents) => ents.forEach((e) => {
+      if (e.isIntersecting) { artIO.unobserve(e.target); loadThumb(e.target); }
+    }), { rootMargin: "240px 0px" });
+    artIO.observe(el);
+    return el;
+  }
+  /* 詳細シート・演出の大きいカード（canvas）。伝説には光の筋 */
+  function artBig(c) {
+    const shine = c.rar === "legend" ? h("i", { class: "hn-ca-shine", "aria-hidden": "true" }) : null;
+    const el = h("div", { class: "hn-ca hn-ca-big", "data-rar": c.rar });
+    const key = artKey(c);
+    const put = (cv) => { cv.setAttribute("aria-label", "蛙チョコカード「" + c.name + "」"); el.replaceChildren(cv); if (shine) el.append(shine); };
+    if (bigCache.has(key)) put(bigCache.get(key));
+    else { el.append(cardFront(c, true)); bigOf(c, key).then(put).catch(() => {}); }
+    return el;
+  }
+  const useArt = (c) => !!(CA() && c.done);
+  const saveMsg = { shared: "カードを書き出した", downloaded: "画像を保存した", opened: "新しいタブで開いた。長押しで保存できる", cancelled: null, failed: "保存できなかった" };
+  async function saveCard(c, btn) {
+    if (btn) btn.disabled = true;
+    try {
+      const r = await CA().save(c, { canvas: bigCache.get(artKey(c)) });
+      if (saveMsg[r]) HP.toast(saveMsg[r]);
+    } catch (e) { HP.toast("保存できなかった"); }
+    finally { if (btn) btn.disabled = false; }
+  }
+  /* 解放したカードをまとめて保存。共有の画面は 1 回に 1 枚なので、ボタンを押すたびに 1 枚ずつ出す */
+  async function saveAll() {
+    const list = cards().filter((c) => c.done);
+    if (!list.length || !CA()) return;
+    if (!CA().canShareFiles()) {
+      HP.toast("1枚ずつ保存します（" + list.length + "枚）");
+      for (const c of list) {
+        try { const cv = await bigOf(c, artKey(c)); await CA().save(c, { canvas: cv, noShare: true }); } catch (e) {}
+        await new Promise((r) => setTimeout(r, 450));
+      }
+      HP.toast(list.length + "枚の画像を保存した");
+      return;
+    }
+    let i = 0, ready = null;
+    const now = h("p", { class: "hn-bulk-now" });
+    const next = h("button", { type: "button", class: "btn hn-wide" });
+    const stop = h("button", { type: "button", class: "btn ghost" }, "やめる");
+    const wrapEl = h("div", { class: "hn-bulk", role: "dialog", "aria-modal": "true", "aria-labelledby": "hn-bulk-t" },
+      h("div", { class: "hn-bulk-in" },
+        h("span", { class: "eyebrow" }, "SAVE ALL CARDS"),
+        h("h2", { id: "hn-bulk-t" }, "解放したカードをまとめて保存"),
+        h("p", null, "1枚ずつ保存の画面が出ます。そのたびに「画像を保存」を選んでね（全" + list.length + "枚）。"),
+        now, h("div", { class: "hn-row" }, next, stop)));
+    const close = () => { wrapEl.remove(); lockScroll(false); };
+    stop.onclick = close;
+    const prep = () => {
+      const c = list[i];
+      now.textContent = (i + 1) + " / " + list.length + " 枚目：" + c.name;
+      next.disabled = true; next.textContent = "準備中";
+      ready = bigOf(c, artKey(c)).then((cv) => { next.disabled = false; next.textContent = "この1枚を保存（" + (i + 1) + " / " + list.length + "）"; return cv; })
+        .catch(() => { next.disabled = false; next.textContent = "この1枚を保存（" + (i + 1) + " / " + list.length + "）"; return null; });
+    };
+    next.onclick = async () => {
+      const c = list[i];
+      next.disabled = true;
+      const cv = await ready;
+      let r = "failed";
+      try { r = await CA().save(c, { canvas: cv || undefined }); } catch (e) {}
+      if (r === "failed") HP.toast("保存できなかった。次へ進む");
+      i++;
+      if (i >= list.length) {
+        now.textContent = "全" + list.length + "枚、終わり";
+        next.remove(); stop.textContent = "閉じる"; stop.className = "btn"; stop.focus();
+        return;
+      }
+      prep();
+    };
+    G.document.body.append(wrapEl);
+    lockScroll(true);
+    prep();
+    next.focus({ preventScroll: true });
   }
 
   let locks = 0;
@@ -1003,13 +1152,14 @@ textarea.hn-input { min-height: 72px; resize: vertical; line-height: 1.5; }
           SETS.filter((s) => P.sets[s.id].N).map((s) => h("li", { "data-full": P.sets[s.id].n === P.sets[s.id].N },
             s.label + " " + P.sets[s.id].n + "/" + P.sets[s.id].N))),
         h("div", { class: "hn-hero-row" },
-          h("button", { type: "button", class: "btn ghost hn-s", onclick: openReplay }, "依頼を読み返す")))));
+          h("button", { type: "button", class: "btn ghost hn-s", onclick: openReplay }, "依頼を読み返す"),
+          P.n && CA() ? h("button", { type: "button", class: "btn ghost hn-s", onclick: saveAll }, "解放したカードをまとめて保存") : null))));
 
     SETS.forEach((s, k) => {
       const list = all.filter((c) => c.set === s.id), st = P.sets[s.id];
       const tiles = list.map((c) => h("button", { type: "button", class: "hn-tile",
         "aria-label": c.name + "（" + RARITY[c.rar].jp + "・" + (c.done ? "解放済み" : "未解放") + "）",
-        onclick: () => openSheet(c.key) }, cardFace(c, false)));
+        onclick: () => openSheet(c.key) }, useArt(c) ? artTile(c) : cardFace(c, false)));
       if (s.id === "self") {
         tiles.push(h("button", { type: "button", class: "hn-tile", onclick: openAdd },
           h("div", { class: "hn-cd hn-cd-add" }, h("b", { "aria-hidden": "true" }), "カードを追加")));
@@ -1342,9 +1492,12 @@ textarea.hn-input { min-height: 72px; resize: vertical; line-height: 1.5; }
     if (c) {
       const flipping = ui.flip === c.key && c.done;
       ui.flip = null;
+      const art = useArt(c);
       hero = h("div", { class: "hn-sheet-hero" },
-        h("div", { class: "hn-sheet-card" }, flipping ? flipCard(c, true, 80) : cardFace(c, true),
-          c.type === "sc" && c.done && c.imgCap ? h("p", { class: "hn-cap" }, c.imgCap) : null));
+        h("div", { class: "hn-sheet-card" + (art ? " hn-sheet-art" : "") }, flipping ? flipCard(c, true, 80) : art ? artBig(c) : cardFace(c, true),
+          c.type === "sc" && c.done && c.imgCap ? h("p", { class: "hn-cap" }, c.imgCap) : null,
+          art ? h("div", { class: "hn-ca-acts" },
+            h("button", { type: "button", class: "btn", onclick: (e) => saveCard(cardOf(c.key) || c, e.currentTarget) }, "画像で保存")) : null));
     } else {
       hero = h("div", { class: "hn-sheet-hero" }, h("div", { class: "hn-sheet-card", style: { width: "min(120px, 36vw)" } },
         h("div", { class: "hn-cd hn-cd-add", "aria-hidden": "true" }, h("b", null))));
