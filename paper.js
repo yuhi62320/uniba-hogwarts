@@ -4,8 +4,9 @@
  * 新聞紙面を刷る。サーバーも AI も使わない。
  * 最後に刷った記事（テキストのみ）は HP.state.paper.article に入れて HP.save()。
  * 写真・動画は HP.media に任せる。メインに選んだもののキーは HP.state.paper.photoKey。
- *   ハントで撮ったもの: "hx-<分霊箱id>", "lt-L0/L2/L3"。その場で選んだもの: "paper-photo"
- *   window.HP_HUNT.photoMissions() があれば、写真の候補はそこから作る（nt-: 民泊の夜、cm-: 追加ミッション）
+ *   旅アプリで撮ったもの（1 枚 = 蛙チョコカード 1 枚）: "lt-L0/L2/L3", "hx-<id>", "nt-<id>", "cm-<id>"。
+ *   その場で選んだもの: "paper-photo"
+ *   window.HP_HUNT.photoMissions() があれば、写真の候補とカード図鑑はそこから作る（無い・壊れていれば固定の一覧）
  * 共有: 「号外を画像にする」で紙面を html2canvas（scale 2）で PNG にし、
  *   downloads 能力があれば保存を提案、無くても紙面の下に <img> を出して長押し保存してもらう。
  */
@@ -35,23 +36,31 @@
     incident: { label: "大事件", desc: "号外級のニュースとして大げさに", kicker: "号外・大事件", byline: "本紙事件記者団（現地より）" },
     gossip:   { label: "ゴシップ", desc: "盛りに盛った、噂好き記者の独占記事", kicker: "独占スクープ", byline: "特派員 ベラ・ファブリカ（自動速記羽ペン使用）" },
     ministry: { label: "魔法省の公式発表", desc: "お堅い役所の言い回しで", kicker: "魔法省 公式発表", byline: "魔法省広報室 発表" },
-    final:    { label: "決戦号外", desc: "分霊箱を壊した数で中身が変わる", kicker: "決戦号外", byline: "本紙従軍記者団（ホグワーツ特急より）" },
+    final:    { label: "コレクション号外", desc: "カード図鑑の完成率で中身が変わる", kicker: "コレクション号外", byline: "本紙カード担当記者団（ホグワーツ特急より）" },
   };
 
-  /* 分霊箱ハントの 7 つ。place は表示用、spot は文中に「{spot}で」と差し込む用 */
+  /* ユニバのカード（写真キー hx-<id>）。photoMissions() が無いときの名前。place は表示用、spot は「{spot}で」用 */
   const HX = [
-    { id: "diary",  name: "トムの日記",             place: "嘆きのマートルのトイレ",           spot: "嘆きのマートルのトイレ" },
-    { id: "ring",   name: "ゴーントの指輪",         place: "オリバンダーの店",                 spot: "オリバンダーの店" },
-    { id: "locket", name: "スリザリンのロケット",   place: "ホグワーツ城",                     spot: "ホグワーツ城" },
-    { id: "cup",    name: "ハッフルパフのカップ",   place: "バタービール",                     spot: "バタービールの売り場" },
-    { id: "diadem", name: "レイブンクローの髪飾り", place: "ホグズミードの雪屋根の通り",       spot: "ホグズミードの雪屋根の通り" },
-    { id: "nagini", name: "ナギニ",                 place: "どこでも（エクスペリアームスの動画）", spot: "エクスペリアームスの呪文が飛んだ現場" },
-    { id: "final",  name: "最後の一撃",             place: "ホグワーツ特急の前",               spot: "ホグワーツ特急の前" },
+    { id: "diary",  name: "嘆きのマートルの悲鳴",   place: "嘆きのマートルのトイレ",           spot: "嘆きのマートルのトイレ" },
+    { id: "ring",   name: "オリバンダーの杖えらび", place: "オリバンダーの店",                 spot: "オリバンダーの店" },
+    { id: "locket", name: "ホグワーツ城を仰ぐ4人", place: "ホグワーツ城",                     spot: "ホグワーツ城の前" },
+    { id: "cup",    name: "バタービールの泡ひげ",   place: "バタービール",                     spot: "バタービールの売り場" },
+    { id: "diadem", name: "雪屋根のホグズミード",   place: "ホグズミードの雪屋根の通り",       spot: "ホグズミードの雪屋根の通り" },
+    { id: "nagini", name: "エクスペリアームス！",   place: "どこでも（呪文の動画）",           spot: "エクスペリアームスの呪文が飛んだ現場" },
+    { id: "final",  name: "ホグワーツ特急の旅立ち", place: "ホグワーツ特急の前",               spot: "ホグワーツ特急の前" },
   ];
   const LT = [
-    { key: "lt-L0", name: "9と3/4番線" },
-    { key: "lt-L2", name: "車窓の富士山" },
-    { key: "lt-L3", name: "駅弁" },
+    { key: "lt-L0", name: "9と3/4番線への突入", letter: "L0" },
+    { key: "lt-L2", name: "車窓の富士山と杖",   letter: "L2" },
+    { key: "lt-L3", name: "駅弁の魔法薬",       letter: "L3" },
+  ];
+  /* カード図鑑のセット。spot は、そのセットのカードが出た場所として文中に差し込む */
+  const SETS = [
+    { id: "shinkansen", label: "新幹線",       spot: "新幹線の車内" },
+    { id: "usj",        label: "ユニバ",       spot: "ユニバのホグズミード村" },
+    { id: "night",      label: "夜の談話室",   spot: "夜の談話室" },
+    { id: "self",       label: "自分たち",     spot: "旅の途中" },
+    { id: "secret",     label: "シークレット", spot: "謎の向こう側" },
   ];
 
   const CITIES = ["新大阪駅", "ユニバーサル・シティ駅", "ホグズミード村", "新幹線のぞみ号の車内", "三本の箒の前", "ホグワーツ城の門前", "東京駅のホーム", "ホグワーツ特急の乗り場"];
@@ -72,12 +81,12 @@
         "{animal}も震えた 「{kw}」の瞬間",
       ],
       sub: [
-        "関係者「まさか{name}が」 分霊箱ハントへの影響は不明",
+        "関係者「まさか{name}が」 カード集めへの影響は不明",
         "現場の{city}は一時騒然、けが人なし",
         "魔法省は調査団を派遣する方針",
         "{house}寮監「{trait}の表れと信じたい」",
         "目撃した{wit}「一生忘れない」",
-        "分霊箱ハントにも影響か 現在、{hunt}",
+        "カード集めにも影響か 現在、{hunt}",
         "専門家「百年に一度の珍事」",
       ],
       lead: [
@@ -98,8 +107,8 @@
         "{name}本人は「計画どおり」と言い張っているが、真相は闇の中である。",
       ],
       extra: [
-        "なお、{hunt}。今回の騒動がハントに響くかは不明だ。",
-        "分霊箱ハントは、{hunt}。{mvpline}",
+        "なお、{hunt}。今回の騒動がカード集めに響くかは不明だ。",
+        "カード図鑑の話題もひとつ。{hunt}。{mvpline}",
       ],
       close: [
         "本紙は引き続き、この事件を追う。",
@@ -147,7 +156,7 @@
       ],
       extra: [
         "ちなみに{hunt}。だが真の主役は、話題をさらった{name}かもしれない。",
-        "分霊箱ハントは、{hunt}。{mvpline}本紙はその笑顔の裏にも何かを嗅ぎつけている。",
+        "カード集めの話をすれば、{hunt}。{mvpline}本紙はその笑顔の裏にも何かを嗅ぎつけている。",
       ],
       close: [
         "真実はいつも、記事の行間にある。",
@@ -173,7 +182,7 @@
         "魔法法執行部「市民は落ち着いて行動を」",
         "忘却術師の出動は「現時点で不要」",
         "本件は機密等級「ふくろう便限り」に指定",
-        "分霊箱の破壊状況も公式記録に",
+        "カード図鑑の集計も公式記録に",
         "国際魔法使い連盟へ報告済み",
         "マグル向けの説明文を準備中",
         "立会人に{wit}、記録は地下保管庫へ",
@@ -194,8 +203,8 @@
         "立会人として{wit}が署名し、記録は魔法省地下の保管庫に収められた。",
       ],
       extra: [
-        "また、本日時点の公式集計では、{hunt}である。",
-        "分霊箱ハントについて同省は「{hunt}。引き続き注視する」とした。",
+        "また、本日時点の公式集計によれば、{hunt}。",
+        "カード集めについて同省は「{hunt}。引き続き注視する」とした。",
       ],
       close: [
         "本件に関する問い合わせは、ふくろう便にて受け付ける。",
@@ -207,128 +216,134 @@
     },
   };
 
-  /* 決戦号外。壊した数で full（7 個すべて）/ part（途中）/ zero（まだ 0 個）を使い分ける */
+  /* コレクション号外。図鑑の完成率で full（全部）/ part（途中）/ zero（まだ 0 枚）を使い分ける */
   T.final = {
     full: {
       head: [
-        "闇の帝王、ついに倒れる",
-        "例のあの人、滅ぶ 分霊箱7つすべて破壊",
-        "魔法界に夜明け 闇の帝王、ついに敗北",
-        "{by}の最後の一撃 闇の帝王倒れる",
-        "{spot}で決着 闇の帝王ついに倒れる",
-        "号外 名前を言ってはいけないあの人、敗れる",
-        "7つの魂すべて砕かれる 闇の時代の終わり",
-        "祝 闇の帝王消滅 魔法界は三日三晩の祭りへ",
-        "{name}ら一行、闇の帝王を討つ",
+        "一行、図鑑を完成させる",
+        "蛙チョコカード全{total}枚、ついにコンプリート",
+        "図鑑 {total}/{total} 枚 伝説の偉業",
+        "{by}の最後の1枚 図鑑、ついに完成",
+        "{spot}で最後のページ 図鑑完成",
+        "号外 蛙チョコカード図鑑、全ページ埋まる",
+        "祝 図鑑完成 魔法界は三日三晩の祭りへ",
+        "{name}ら一行、全カードを手中に",
+        "カード商も脱帽 前代未聞のコンプリート",
       ],
       sub: [
-        "とどめを刺したのは{byfull}",
-        "決戦の地は{spot}、目撃者多数",
+        "最後の1枚を引き当てたのは{byfull}",
+        "最後のページは{spot}で埋まった",
         "魔法省「本日を臨時の祝日とする」",
-        "目撃した{wit}「空が一瞬、金色に光った」",
-        "分霊箱7つ、すべて破壊を確認",
+        "目撃した{wit}「図鑑が一瞬、金色に光った」",
+        "全{total}枚、すべて解放を確認",
       ],
       lead: [
-        "ついにその時が来た。{spot}で放たれた{byfull}の最後の一撃により、闇の帝王が倒れた。",
-        "魔法界は今日、歴史的な一日を迎えた。分霊箱はすべて破壊され、名前を言ってはいけないあの人は滅びた。とどめは{spot}、{byfull}によるものだ。",
-        "{date}、{spot}にて闇の帝王の最期が確認された。最後の一撃を放ったのは{byfull}である。",
-        "長い戦いが終わった。{byfull}が{spot}で杖を振り下ろした瞬間、闇の帝王の最後の魂が消え去った。",
+        "ついにその時が来た。{spot}で{byfull}が最後のカード「{card}」を解放し、蛙チョコカード図鑑が完成した。",
+        "魔法界は今日、歴史的な一日を迎えた。全{total}枚の蛙チョコカードがすべて解放され、図鑑の最後のページが埋まった。決め手は{spot}、{byfull}の1枚だ。",
+        "{date}、{spot}にて図鑑の完成が確認された。最後の1枚「{card}」を手にしたのは{byfull}である。",
+        "長い旅が報われた。{byfull}が{spot}でシャッターを切った瞬間、全{total}枚の図鑑が金色に輝いた。",
       ],
       mid: [
-        "{list}が次々と砕かれ、最後に{spot}で決着がついた。",
-        "目撃した{wit}は「空が一瞬、金色に光った」と興奮気味に語った。",
-        "魔法省は本日を臨時の祝日とし、全国のバタービールを無料にする方針だ。",
-        "なお、決戦の直前には「{kw}」という出来事もあったという。",
+        "最後に並んだのは{list}。どのカードの肖像も、誇らしげに胸を張っている。",
+        "目撃した{wit}は「図鑑が一瞬、金色に光った」と興奮気味に語った。",
+        "魔法省は本日を臨時の祝日とし、全国の蛙チョコを半額にする方針だ。",
+        "なお、完成の直前には「{kw}」という出来事もあったという。",
         "喜びに沸く一行は、「{kw2}」の話で夜まで盛り上がった模様だ。",
         "周囲のマグルは、これをテーマパークの演出だと思い込んでいる。",
       ],
       extra: [
-        "今回の殊勲者は、分霊箱を最も多く壊した{mvp}である。",
+        "今回の殊勲者は、最も多くのカードを解放した{mvp}である。",
         "魔法省は、{mvp}に勲一等マーリン勲章を授与する方針を固めた。",
+        "{secretline}全{total}枚、1枚の取りこぼしもない。",
       ],
       close: [
-        "闇の時代は終わった。旅は、まだ続く。",
+        "図鑑は完成した。旅は、まだ続く。",
         "本紙は今夜、全紙面を金色のインクで刷る。",
-        "読者諸君、今夜は杖をしまって眠りたまえ。",
-        "{name}たちの名は、魔法史の教科書に刻まれるだろう。",
+        "読者諸君、今夜はカードを枕元に並べて眠りたまえ。",
+        "{name}たちの名は、カードの裏の解説文に刻まれるだろう。",
       ],
     },
     part: {
       head: [
-        "分霊箱{n}個目が破壊される",
-        "「{hx}」破壊 分霊箱、残り{left}個",
-        "{spot}で分霊箱破壊 {by}がやった",
-        "{byfull}、「{hx}」を砕く",
-        "闇の帝王に動揺 分霊箱{n}個目を失う",
-        "分霊箱ハント{n}個目 残る{left}個の行方は",
-        "速報 「{hx}」が{spot}で破壊",
-        "闇の帝王、{n}つ目の魂を失う",
-        "残り{left}個 闇の帝王、追い詰められる",
+        "{by}が伝説のカードを入手",
+        "図鑑 {n}/{total} 枚に到達",
+        "{by}、「{card}」のカードを引き当てる",
+        "速報 カード「{card}」、{spot}で解放",
+        "図鑑、残り{left}枚 一行の勢い止まらず",
+        "{byfull}、伝説の1枚「{card}」を手に",
+        "蛙チョコカード{n}枚目 「{card}」が図鑑入り",
+        "{set}のカードに新顔 「{card}」",
+        "完成まであと{left}枚 図鑑 {n}/{total} 枚",
       ],
       sub: [
-        "破壊したのは{byfull}",
-        "残るは{left}個——闇の帝王の命運は",
-        "目撃した{wit}「黒い煙が立ちのぼった」",
-        "魔法省「ハント一行の安全を最優先に」",
+        "引き当てたのは{byfull}",
+        "図鑑は{n}/{total}枚、完成率{pct}%",
+        "目撃した{wit}「カードが金色に光った」",
+        "カード商「相場が動くかもしれない」",
         "現場は{spot}、けが人なし",
       ],
       lead: [
-        "本日、{spot}で分霊箱「{hx}」が破壊された。破壊はこれで{n}個目、残りは{left}個となる。",
-        "魔法界に朗報が届いた。{byfull}が{spot}にて「{hx}」を打ち砕いたのである。破壊はこれで{n}個目だ。",
-        "{date}、分霊箱「{hx}」が{spot}で砕かれた。手を下したのは{byfull}である。",
-        "闇の帝王の魂のかけらが、また一つ消えた。{spot}で「{hx}」を破壊したのは{byfull}だ。",
+        "本日、{spot}で蛙チョコカード「{card}」が解放された。図鑑はこれで{n}/{total}枚、完成まで残り{left}枚となる。",
+        "魔法界に朗報が届いた。{byfull}が{spot}にて伝説のカード「{card}」を引き当てたのである。図鑑はこれで{n}枚目だ。",
+        "{date}、カード「{card}」が図鑑の「{set}」のページに加わった。シャッターを切ったのは{byfull}である。",
+        "跳ねる蛙チョコを、またひとつ捕まえた。{spot}で「{card}」を手にしたのは{byfull}だ。",
       ],
       mid: [
-        "破壊の瞬間、{spot}には黒い煙が立ちのぼり、甲高い悲鳴が響いたという。",
-        "これまでに破壊されたのは、{list}の{n}個である。",
-        "目撃した{wit}は「杖を抜く暇もなかった」と興奮気味に語った。",
+        "解放の瞬間、カードの肖像が{by}に向かってウインクしたという。",
+        "最近の入手は{list}。図鑑の完成率は{pct}%に達した。",
+        "目撃した{wit}は「カードが金色に光った」と興奮気味に語った。",
         "なお、現場付近では「{kw}」も目撃されており、関連を調べている。",
-        "闇の帝王は沈黙を続けているが、側近は動揺を隠せない様子だという。",
-        "{by}は取材に対し「まだ{left}個ある。気は抜けない」と語った。",
+        "一行は、同じカードが二度と出ないことを早くも確かめ合っていた。",
+        "{by}は取材に対し「あと{left}枚。気は抜けない」と語った。",
       ],
       extra: [
-        "残る分霊箱は{left}個。一行は次の手がかりを追っている。",
-        "闇の帝王が倒れるまで、あと{left}個。{mvpline}",
+        "{secretline}残るカードは{left}枚。一行は次の被写体を探している。",
+        "図鑑の完成まで、あと{left}枚。{mvpline}",
       ],
       close: [
-        "本紙は引き続き、分霊箱ハントの行方を追う。",
-        "次の号外が出るのは、次の分霊箱が砕けたときだ。",
-        "読者は杖の手入れを怠らないように。",
-        "{name}たちの旅は、まだ終わらない。",
+        "本紙は引き続き、カード集めの行方を追う。",
+        "次の号外が出るのは、次のカードが解放されたときだ。",
+        "読者はカメラの電池切れに注意されたい。",
+        "{name}たちの図鑑は、まだ埋まりきらない。",
       ],
     },
     zero: {
       head: [
-        "分霊箱ハント、開幕へ 闇の帝王はまだ余裕",
-        "7つの分霊箱、いまだ健在",
-        "{name}ら一行、分霊箱探しの旅に出る",
-        "闇の帝王「誰も見つけられまい」",
-        "魔法省、分霊箱ハントを正式に承認",
-        "分霊箱は7つ 決戦の地はユニバか",
-        "{house}の{name}、闇の帝王に挑む",
-        "嵐の前の静けさ 分霊箱ハント前夜",
+        "蛙チョコカード争奪戦、開幕",
+        "図鑑はまだ白紙 {name}ら一行、カード集めへ",
+        "全{total}枚の図鑑 最初の1枚は誰の手に",
+        "{house}の{name}、蛙チョコカード争奪戦に名乗り",
+        "カードはまだ0枚 嵐の前の静けさ",
+        "魔法省、蛙チョコカード争奪戦を正式に承認",
+        "蛙チョコ、逃げ出す 一行は追跡態勢へ",
+        "伝説のカードを求めて 一行、旅立つ",
       ],
       sub: [
-        "破壊された分霊箱は、まだ0個",
+        "図鑑の解放は、まだ0枚",
         "目撃した{wit}「一行の目は本気だった」",
-        "魔法省「ハント一行の安全を最優先に」",
+        "シークレットカードの存在もささやかれる",
+        "カードは撮影1枚ごとに1枚、全{total}枚",
       ],
       lead: [
-        "闇の帝王の魂を宿した7つの分霊箱。そのすべてを壊す旅が、いま始まろうとしている。中心にいるのは{house}の{name}だ。",
-        "{date}、{name}（{house}）ら一行が分霊箱ハントに名乗りを上げた。分霊箱は、まだひとつも壊れていない。",
+        "写真を撮るたびに1枚ずつ解放される蛙チョコカード。全{total}枚の図鑑を埋める旅が、いま始まろうとしている。中心にいるのは{house}の{name}だ。",
+        "{date}、{name}（{house}）ら一行が蛙チョコカード争奪戦に名乗りを上げた。図鑑は、まだ1枚も埋まっていない。",
+        "開封された蛙チョコは、まだひとつもない。だが{house}の{name}の目は、すでに全{total}枚の図鑑を見据えている。",
       ],
       mid: [
-        "最初の標的は、嘆きのマートルのトイレに眠る「トムの日記」とみられる。",
+        "最初の1枚は、新幹線の車内で解放されるとの見方が有力だ。",
         "目撃した{wit}は「一行の目は本気だった」と語った。",
         "なお、出発前には「{kw}」という出来事もあったという。",
-        "闇の帝王の側近は「7つすべてなど見つかるはずがない」と鼻で笑った。",
+        "カード商の老魔法使いは「全部そろえた者など見たことがない」と鼻で笑った。",
+        "謎を解いた者だけが手にできるシークレットカードがある、とのうわさも流れている。",
       ],
       extra: [
-        "決戦の地は、ホグワーツ特急の前になるとの予言もある。",
+        "図鑑の最後のページは、ホグワーツ特急の前で埋まるとの予言もある。",
+        "蛙チョコは一度跳ねたら戻らない。シャッターは素早く切るのが鉄則だ。",
       ],
       close: [
-        "本紙は、最初の分霊箱が砕ける瞬間を待っている。",
-        "続報は、最初の号外で。",
+        "本紙は、最初の1枚が解放される瞬間を待っている。",
+        "続報は、最初のカードが出たときに。",
+        "{name}たちの図鑑は、まだ白紙のままだ。",
       ],
     },
   };
@@ -366,27 +381,114 @@
     return { id: p.id, name: p.name.trim(), house: p.house || null };
   }
 
-  /* 分霊箱ハントの現状。寮杯（HP.scores）は使わない */
-  function huntInfo() {
-    const hz = (HP.state.hunt && HP.state.hunt.horcrux) || {};
-    const list = HX.map((x) => {
-      const r = hz[x.id] || null;
-      return Object.assign({}, x, { done: !!(r && r.doneAt), at: (r && r.doneAt) || "", by: (r && r.by) || null });
+  /* ---------- カード図鑑の現状。寮杯（HP.scores）は使わない ---------- */
+  const setLabel = (id) => (SETS.find((x) => x.id === id) || SETS[3]).label;
+  const setSpot = (id) => (SETS.find((x) => x.id === id) || SETS[3]).spot;
+  /* ハント側の group をセットに寄せる。custom-* など知らないものは「自分たち」 */
+  function setOf(group, key) {
+    const g = String(group || "").toLowerCase();
+    if (g.indexOf("secret") >= 0) return "secret";
+    if (g === "shinkansen" || g === "usj" || g === "night") return g;
+    if (g) return "self";
+    if (/^lt-/.test(key)) return "shinkansen";
+    if (/^hx-/.test(key)) return "usj";
+    if (/^nt-/.test(key)) return "night";
+    return "self";
+  }
+  function toTime(v) {
+    if (typeof v === "number" && isFinite(v)) return v;
+    if (typeof v === "string" && v) { const t = Date.parse(v); return isNaN(t) ? 0 : t; }
+    return 0;
+  }
+  /* 解放の記録（いつ・誰が）。hx は horcrux[id]、それ以外は shots[key]（時刻 or { at, by }）、lt は letters[L].photoAt */
+  function recordOf(key, H) {
+    let at = 0, by = null, has = false;
+    const X = H.horcrux || {}, S = H.shots || {}, L = H.letters || {};
+    if (key.indexOf("hx-") === 0) {
+      const r = X[key.slice(3)];
+      if (r && typeof r === "object") { has = !!r.doneAt; at = toTime(r.doneAt); by = r.by || null; }
+      else if (r) has = true;
+    }
+    const sh = S[key];
+    if (sh) {
+      has = true;
+      if (typeof sh === "object") { at = at || toTime(sh.at || sh.doneAt); by = by || sh.by || null; }
+      else at = at || toTime(sh);
+    }
+    const lt = LT.find((x) => x.key === key);
+    if (lt) {
+      const r = L[lt.letter];
+      if (r && r.photoAt) { has = true; at = at || toTime(r.photoAt); }
+      if (r && r.by) by = by || r.by;
+    }
+    return { has, at, by };
+  }
+  function fixedName(key) {
+    const x = HX.find((y) => "hx-" + y.id === key);
+    if (x) return x.name;
+    const l = LT.find((y) => y.key === key);
+    return l ? l.name : "";
+  }
+  function byLabel(by) {
+    if (by === "all") return { name: "一行全員", full: "一行全員" };
+    const p = playerLabel(by);
+    if (!p) return null;
+    const hs = p.house && HP.HOUSES[p.house];
+    return { name: p.name, full: hs ? hs.jp + "の" + p.name : p.name, player: p };
+  }
+  function cardInfo() {
+    const H = (HP.state && HP.state.hunt) || {};
+    let src = missionList();
+    if (!src || !src.length) {
+      src = LT.map((x) => ({ key: x.key, title: x.name, group: "shinkansen", done: null }))
+        .concat(HX.map((x) => ({ key: "hx-" + x.id, title: x.name, group: "usj", done: null })));
+    }
+    const seen = {};
+    const cards = [];
+    src.forEach((m, i) => {
+      if (!m || typeof m.key !== "string" || seen[m.key]) return;
+      seen[m.key] = true;
+      const rec = recordOf(m.key, H);
+      const set = setOf(m.group, m.key);
+      const hx = HX.find((y) => "hx-" + y.id === m.key);
+      cards.push({
+        key: m.key, i, set, setLabel: setLabel(set),
+        name: String(m.title || "").trim() || fixedName(m.key) || "名もなきカード",
+        spot: hx ? hx.spot : setSpot(set),
+        done: m.done == null ? rec.has : !!m.done,
+        at: rec.at, by: rec.by,
+      });
     });
-    const done = list.filter((x) => x.done).sort((a, b) => (a.at < b.at ? -1 : a.at > b.at ? 1 : 0));
+    const done = cards.filter((c) => c.done).sort((a, b) => (a.at - b.at) || (a.i - b.i));
+    const sets = SETS.map((st) => {
+      const cs = cards.filter((c) => c.set === st.id);
+      return { id: st.id, label: st.label, n: cs.filter((c) => c.done).length, total: cs.length };
+    }).filter((x) => x.total > 0);
     const count = {};
-    done.forEach((x) => { if (playerLabel(x.by)) count[x.by] = (count[x.by] || 0) + 1; });
+    done.forEach((c) => { if (playerLabel(c.by)) count[c.by] = (count[c.by] || 0) + 1; });
     const top = Math.max(0, ...Object.values(count));
     const mvp = top > 0
       ? { count: top, players: Object.keys(count).filter((id) => count[id] === top).map(playerLabel) }
       : null;
-    return { list, done, n: done.length, mvp };
+    const n = done.length, total = cards.length;
+    return { cards, done, n, total, full: total > 0 && n >= total, sets, mvp };
+  }
+  /* 記事に残す図鑑の要約（最近解放したカードは新しい順に 3 枚） */
+  function cardSummary(info) {
+    return {
+      n: info.n, total: info.total,
+      sets: info.sets.map((x) => ({ label: x.label, n: x.n, total: x.total })),
+      recent: info.done.slice(-3).reverse().map((c) => {
+        const b = byLabel(c.by);
+        return { name: c.name, set: c.setLabel, by: b ? b.name : "" };
+      }),
+    };
   }
 
-  function huntPhrase(n) {
-    if (n === 0) return "分霊箱はまだ1つも壊れていない";
-    if (n >= HX.length) return "分霊箱はすべて破壊済み";
-    return "分霊箱は" + n + "個破壊、残り" + (HX.length - n) + "個";
+  function huntPhrase(n, total) {
+    if (n <= 0) return "蛙チョコカードはまだ1枚も解放されていない";
+    if (total > 0 && n >= total) return "蛙チョコカード図鑑は全" + total + "枚コンプリート済み";
+    return "蛙チョコカード図鑑は" + n + "/" + total + "枚";
   }
 
   function parseKeywords(text) {
@@ -396,27 +498,24 @@
   function makeVars(input) {
     const players = HP.activePlayers();
     let hero = input.heroId ? HP.player(input.heroId) : null;
-    const hunt = huntInfo();
-    const n = hunt.n;
-    // 決戦号外の「主な一撃」：7 個そろったら最後の一撃、途中なら最新の分霊箱（最後の一撃以外を優先）
-    let key = null;
-    if (n >= HX.length) key = hunt.list.find((x) => x.id === "final");
-    else if (n > 0) {
-      const objs = hunt.done.filter((x) => x.id !== "final");
-      key = (objs.length ? objs : hunt.done)[(objs.length ? objs : hunt.done).length - 1];
-    }
-    const by = key ? playerLabel(key.by) : null;
-    // 決戦号外で主役が「おまかせ」なら、壊した本人を主役にする
-    if ((!hero || !hero.name.trim()) && input.tone === "final" && by) hero = HP.player(by.id);
+    const info = cardInfo();
+    const n = info.n, total = info.total;
+    // コレクション号外の「主なカード」：最近 3 枚にシークレットがあればそれ、なければいちばん新しい 1 枚
+    const last3 = info.done.slice(-3);
+    const secret = last3.filter((c) => c.set === "secret");
+    const key = n ? (secret.length ? secret[secret.length - 1] : info.done[n - 1]) : null;
+    const b = key ? byLabel(key.by) : null;
+    // コレクション号外で主役が「おまかせ」なら、カードを出した本人を主役にする
+    if ((!hero || !hero.name.trim()) && input.tone === "final" && b && b.player) hero = HP.player(b.player.id);
     if (!hero || !hero.name.trim()) hero = players.length ? pick(players) : null;
     const house = hero && HP.HOUSES[hero.house];
     const others = players.filter((p) => !hero || p.id !== hero.id);
     const kws = parseKeywords(input.keywords);
     const kw = kws.length ? kws[0] : pick(FALLBACK_KW);
     const kw2 = kws.length > 1 ? pick(kws.slice(1)) : pick(FALLBACK_KW.filter((k) => k !== kw));
-    const byHouse = by && HP.HOUSES[by.house];
-    const mvpName = hunt.mvp ? hunt.mvp.players.map((p) => p.name).join("と") : "";
-    const objs = hunt.done.filter((x) => x.id !== "final").map((x) => "「" + x.name + "」");
+    const mvpName = info.mvp ? info.mvp.players.map((p) => p.name).join("と") : "";
+    const recent = info.done.slice(-3).reverse().map((c) => "「" + c.name + "」");
+    const sDone = info.done.filter((c) => c.set === "secret");
     return {
       vars: {
         name: hero ? hero.name.trim() : "ある魔法使い",
@@ -426,22 +525,25 @@
         kw, kw2,
         city: pick(CITIES),
         wit: others.length && Math.random() < 0.5 ? pick(others).name.trim() : pick(WITNESSES),
-        hunt: huntPhrase(n),
+        hunt: huntPhrase(n, total),
         mvp: mvpName || "一行の全員",
-        mvpline: mvpName ? "目下の殊勲者は" + mvpName + "だ。" : "",
+        mvpline: mvpName ? "カード集めの首位は" + mvpName + "（" + info.mvp.count + "枚）だ。" : "",
         n: String(n),
-        left: String(HX.length - n),
-        hx: key ? key.name : "分霊箱",
-        place: key ? key.place : "不明",
+        total: String(total),
+        left: String(Math.max(0, total - n)),
+        pct: String(total ? Math.floor((n / total) * 100) : 0),
+        card: key ? key.name : "蛙チョコカード",
+        set: key ? key.setLabel : "図鑑",
         spot: key ? key.spot : "現場",
-        by: by ? by.name : "一行の誰か",
-        byfull: by ? (byHouse ? byHouse.jp + "の" + by.name : by.name) : "一行の誰か",
-        list: objs.length ? objs.join("、") : "分霊箱",
+        by: b ? b.name : "一行の誰か",
+        byfull: b ? b.full : "一行の誰か",
+        list: recent.length ? recent.join("、") : "蛙チョコカード",
+        secretline: sDone.length ? "謎を解いた者だけが手にするシークレットカード「" + sDone[sDone.length - 1].name + "」も図鑑に収まった。" : "",
         date: "本日",
       },
       heroId: hero ? hero.id : null,
       heroHouse: hero ? hero.house : null,
-      hunt,
+      info,
     };
   }
 
@@ -470,17 +572,17 @@
     }
   }
 
-  function finalSet(n) { return n >= HX.length ? T.final.full : n > 0 ? T.final.part : T.final.zero; }
+  function finalSet(info) { return info.full ? T.final.full : info.n > 0 ? T.final.part : T.final.zero; }
 
   function generate(input, prev) {
     const tone = TONES[input.tone] ? input.tone : "incident";
     const m = makeVars(Object.assign({}, input, { tone }));
-    const n = m.hunt.n;
-    const set = tone === "final" ? finalSet(n) : T[tone];
+    const info = m.info, n = info.n;
+    const set = tone === "final" ? finalSet(info) : T[tone];
     let headline = fill(pick(set.head), m.vars);
     for (let i = 0; i < 5 && prev && headline === prev.headline; i++) headline = fill(pick(set.head), m.vars);
     const photoCaps = tone === "final" && n > 0
-      ? ["▲ 動く写真：{spot}での決戦の瞬間（本紙カメラマン撮影）", "▲ 写真の中の{by}は、いまも杖を振り続けている"]
+      ? ["▲ 動く写真：カード「{card}」が解放された瞬間（{spot}）", "▲ 写真の中の{by}は、いまもカードを掲げ続けている"]
       : [
         "▲ 動く写真：「{kw}」の直後をとらえた一枚（本紙カメラマン撮影）",
         "▲ 写真の中の{name}は、いまも手を振り続けている",
@@ -488,7 +590,7 @@
       ];
     return {
       tone,
-      kicker: tone === "final" && n >= HX.length ? "号外・闇の帝王討伐" : TONES[tone].kicker,
+      kicker: tone === "final" && info.full ? "号外・図鑑コンプリート" : TONES[tone].kicker,
       byline: TONES[tone].byline,
       headline,
       sub: fill(pick(set.sub), m.vars),
@@ -498,8 +600,8 @@
       issue: "第" + (1000 + Math.floor(Math.random() * 9000)).toLocaleString("ja-JP") + "号",
       price: pick(PRICES),
       tagline: pick(TAGLINES),
-      horcrux: m.hunt.list.map((x) => ({ id: x.id, name: x.name, done: x.done })),
-      mvp: m.hunt.mvp,
+      cards: cardSummary(info),
+      mvp: info.mvp,
       weather: pick(WEATHER),
       ad: pick(ADS),
       notice: fill(pick(NOTICES), m.vars),
@@ -512,7 +614,7 @@
 
   /* ---------- 写真・動画（保存は HP.media） ---------- */
   const OWN = "paper-photo";
-  /* ハント側の全ミッション一覧。無い・壊れているときは null（旧来の固定一覧に戻る） */
+  /* ハント側の全撮影ミッション（= カード）一覧。無い・壊れているときは null（固定の一覧に戻る） */
   function missionList() {
     const H = window.HP_HUNT;
     if (!H || typeof H.photoMissions !== "function") return null;
@@ -844,7 +946,7 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
   let els = {};
   let current = null; // 表示中の記事
   let pickSig = null; // 候補一覧が変わったときだけ作り直す
-  let autoN = 0;      // 決戦号外を自動で選んだときの破壊数
+  let autoN = 0;      // コレクション号外を自動で選んだときの解放枚数
 
   let heroInit = false;
   function heroOptions(select) {
@@ -890,8 +992,8 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
       els.pick.append(tile("", "写真なし", null));
       list.forEach((c) => els.pick.append(tile(c.key, c.name, mediaEl(c.key, null, c.name))));
       els.pickHint.textContent = list.some((c) => c.key !== OWN)
-        ? "ハントで撮った写真・動画から選べます"
-        : "ハントで撮った写真・動画は、まだありません";
+        ? "カード集めで撮った写真・動画から選べます"
+        : "カード集めで撮った写真・動画は、まだありません";
       els.ownRemove.hidden = !HP.media.get(OWN);
       els.photoBtnText.textContent = HP.media.get(OWN) ? "写真・動画を変える" : "写真・動画を選ぶ";
     }
@@ -906,25 +1008,31 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
 
   function renderPaper(a) {
     current = a;
-    // 寮杯時代の古い記事は、いまのハント状況で埋める
-    const live = (!a.horcrux) ? huntInfo() : null;
-    const hx = a.horcrux || live.list.map((x) => ({ id: x.id, name: x.name, done: x.done }));
-    const mvpData = a.horcrux ? a.mvp : live.mvp;
-    const nDone = hx.filter((x) => x.done).length;
+    // 図鑑の要約が無い古い記事（寮杯・分霊箱の時代）は、いまの図鑑で埋める
+    const live = a.cards ? null : cardInfo();
+    const cs = a.cards || cardSummary(live);
+    const mvpData = a.cards ? a.mvp : live.mvp;
 
-    const hxList = h("ul", { class: "pp-hx" }, hx.map((x) =>
-      h("li", { class: x.done ? "is-done" : null },
-        h("span", { class: "pp-hx-name" }, x.name),
-        h("span", { class: "pp-hx-mark", "aria-label": x.done ? "破壊済み" : "未破壊" }, x.done ? "✓" : "未"))));
+    const setList = h("ul", { class: "pp-hx" }, cs.sets.map((x) =>
+      h("li", { class: x.total && x.n >= x.total ? "is-done" : null },
+        h("span", { class: "pp-hx-name" }, x.label),
+        h("span", { class: "pp-hx-mark", "aria-label": x.total + "枚中" + x.n + "枚" }, x.n + "/" + x.total))));
+    const recent = cs.recent.length ? [
+      h("p", { class: "pp-hx-sum" }, "最近解放したカード"),
+      h("ul", { class: "pp-hx" }, cs.recent.map((c) =>
+        h("li", { class: "is-done" },
+          h("span", { class: "pp-hx-name" }, c.name + (c.by ? "（" + c.by + "）" : "")),
+          h("span", { class: "pp-hx-mark", "aria-label": "解放済み" }, "✓")))),
+    ] : [h("p", { class: "pp-small" }, "まだ1枚も解放されていない")];
     const mvp = mvpData && mvpData.players && mvpData.players.length
       ? h("div", { class: "pp-mvp" },
           mvpData.players.map((p) => [h("span", { class: "pp-mvp-name" }, p.name), HP.houseChip(p.house)]).flat(),
-          h("span", { class: "pp-count" }, "分霊箱" + mvpData.count + "個"))
+          h("span", { class: "pp-count" }, "カード" + mvpData.count + "枚"))
       : h("p", { class: "pp-small" }, "該当者なし");
 
     const key = mainKey();
-    const hxMain = key && HX.find((x) => "hx-" + x.id === key);
-    const caption = hxMain ? "▲ 動く写真：「" + hxMain.name + "」破壊の現場（" + hxMain.place + "）" : a.caption;
+    const card = key && key !== OWN ? (live || cardInfo()).cards.find((c) => c.key === key) : null;
+    const caption = card ? "▲ 動く写真：蛙チョコカード「" + card.name + "」の一枚（" + card.setLabel + "）" : a.caption;
 
     const gal = choices().filter((c) => c.key !== OWN && c.key !== key).slice(0, 6);
     const gallery = gal.length ? h("section", { class: "pp-gallery" },
@@ -952,7 +1060,7 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
           h("div", { class: "pp-byline" }, a.byline),
           h("div", { class: "pp-body" }, a.body.map((p) => h("p", null, p)))),
         h("aside", { class: "pp-side" },
-          box("分霊箱 破壊状況", hxList, h("p", { class: "pp-hx-sum" }, "7個中 " + nDone + "個 破壊")),
+          box("カード図鑑", setList, h("p", { class: "pp-hx-sum" }, "全" + cs.total + "枚中 " + cs.n + "枚 解放"), ...recent),
           box("今日のMVP", mvp),
           box("魔法界の天気", h("p", { class: "pp-small" }, a.weather)),
           h("section", { class: "pp-box pp-ad" },
@@ -960,7 +1068,7 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
             h("p", { class: "pp-small" }, a.ad.body),
             h("div", { class: "pp-ad-foot" }, a.ad.foot)),
           box("お知らせ", h("p", { class: "pp-small" }, a.notice)),
-          nightBox(a, nDone))),
+          nightBox(a, huntPhrase(cs.n, cs.total)))),
       gallery,
       h("footer", { class: "pp-foot" }, "本紙の記事はすべて予言であり、事実とは限りません。")
     );
@@ -981,14 +1089,14 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
 
   /* 民泊の夜の写真があるときだけ出す小ネタ。記事ごとに文は固定（刷った時刻から選ぶ） */
   const NIGHT = [
-    "民泊の談話室では今夜、一行がささやかな祝勝会を開き、「{hunt}」の話で夜更けまで盛り上がった。",
-    "夜の談話室に集まった一行は、杖の代わりにグラスを掲げて今日の戦いをたたえ合った。",
+    "民泊の談話室では今夜、一行がカードを並べて品評会を開いた。{hunt}だという。",
+    "夜の談話室に集まった一行は、杖の代わりにグラスを掲げて今日のカードをたたえ合った。",
     "談話室の暖炉の前で祝勝会。屋敷しもべ妖精が「もう寝てください」と三度注意したという。",
   ];
-  function nightBox(a, nDone) {
+  function nightBox(a, phrase) {
     if (!choices().some((c) => c.key.indexOf("nt-") === 0)) return null;
     const seed = Array.from(String(a.at || a.issue || "")).reduce((n, ch) => n + ch.charCodeAt(0), 0);
-    const line = fill(NIGHT[seed % NIGHT.length], { hunt: huntPhrase(nDone) });
+    const line = fill(NIGHT[seed % NIGHT.length], { hunt: phrase });
     return box("夜の談話室より", h("p", { class: "pp-small" }, line));
   }
 
@@ -1141,7 +1249,7 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
   function print(again) {
     const input = readForm();
     const a = generate(input, current);
-    const draft = Object.assign({}, input, { huntN: huntInfo().n });
+    const draft = Object.assign({}, input, { huntN: cardInfo().n });
     HP.state.paper = Object.assign({}, HP.state.paper, { article: a, draft });
     renderPaper(a);
     HP.save();
@@ -1149,12 +1257,12 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
     els.out.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
   }
 
-  /* 決戦号外の説明文と、分霊箱が新しく壊れたときの自動選択 */
+  /* コレクション号外の説明文と、カードが新しく解放されたときの自動選択 */
   function syncTone() {
-    const n = huntInfo().n;
-    els.finalDesc.textContent = n >= HX.length
-      ? "分霊箱7つすべて破壊。闇の帝王、ついに倒れる"
-      : n > 0 ? "分霊箱 " + n + "/7 破壊。壊した場所と人が記事に" : "分霊箱を壊すと、ここが決戦の号外に";
+    const info = cardInfo(), n = info.n;
+    els.finalDesc.textContent = info.full
+      ? "図鑑 " + n + "/" + info.total + " 枚、コンプリート。一行の偉業を報じる"
+      : n > 0 ? "図鑑 " + n + "/" + info.total + " 枚。最新のカードと撮った人が記事に" : "カードを解放すると、ここが図鑑の号外に";
     if (n > 0 && n > autoN) {
       autoN = n;
       const r = els.form.querySelector('input[name="pp-tone"][value="final"]');
@@ -1203,7 +1311,7 @@ textarea.pp-input { min-height: 88px; resize: vertical; }
       }
     });
 
-    const n0 = huntInfo().n;
+    const n0 = cardInfo().n;
     let tone = TONES[draft.tone] ? draft.tone : (n0 > 0 ? "final" : "incident");
     if (n0 > 0 && n0 > (draft.huntN || 0)) tone = "final";
     autoN = Math.max(draft.huntN || 0, n0);
