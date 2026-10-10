@@ -7,7 +7,7 @@ locore.app の「Editorial Light / Locore Lime」をそのまま使う。トー�
 - 面は白。区別は **1px の罫線（`--lc-border`）＋弱い影（`--shadow-sm`）**。グラデーション、金色、羊皮紙、夜空、光る演出（glow）は使わない
 - 角丸: カード 16px、小さい面 12px、ボタン・チップ・ピルは 9999px
 - 文字: `--font-jp`（Noto Sans JP）。見出しは 700、字間 -0.015em。**明朝は使わない**
-- 英字の小見出し（eyebrow）: `.eyebrow`（等幅 11px・字間 .18em・大文字・`--lime-700`）。例: `LETTER 01`、`HORCRUX 3/7`、`GAME`
+- 英字の小見出し（eyebrow）: `.eyebrow`（等幅 12px・字間 .18em・大文字・`--lime-700`）。例: `LETTER 01`、`HORCRUX 3/7`、`GAME`
 - 数字は `--font-latin`（Inter）＋ `font-variant-numeric: tabular-nums`
 - ボタン: 主ボタンは `.btn`（ライム地に黒文字のピル）、副ボタンは `.btn.ghost`（白地にグレー枠）。危険な操作は文字を `--danger` にした ghost
 - チップ・タグ: `--lc-muted` 地、または `--lime-50` 地に `--lime-100` の枠と `--lime-900` の文字
