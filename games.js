@@ -325,8 +325,9 @@
     if (!g || typeof g !== "object") g = HP.state.games = {};
     if (g.mode !== "drink" && g.mode !== "soft") g.mode = "soft";
     if (!g.cats || typeof g.cats !== "object") g.cats = {};
-    const OFF_BY_DEFAULT = { otona: true }; // 大人カテゴリは全員ノリノリのときだけ ON にする
-    CATS.concat(CUSTOM_CAT).forEach((c) => { if (typeof g.cats[c.id] !== "boolean") g.cats[c.id] = !OFF_BY_DEFAULT[c.id]; });
+    CATS.concat(CUSTOM_CAT).forEach((c) => { if (typeof g.cats[c.id] !== "boolean") g.cats[c.id] = true; });
+    // 大人カテゴリは最初から ON（以前の版でオフのまま保存された部屋も、1回だけオンに直す）
+    if (!g.otonaOn) { g.cats.otona = true; g.otonaOn = true; }
     if (!g.custom || typeof g.custom !== "object") g.custom = {};
     ["talk", "ng", "match", "pick"].forEach((k) => { if (!Array.isArray(g.custom[k])) g.custom[k] = []; });
     if (!g.ng || typeof g.ng !== "object") g.ng = {};
